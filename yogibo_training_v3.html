@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Yogibo 研修参加状況</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap');
+:root{
+  --bg:#0f1117;--sur:#181c27;--sur2:#1e2435;--bdr:#2a3045;
+  --acc:#4f8ef7;--grn:#38d9a9;--orn:#ffa94d;--red:#ff6b6b;
+  --txt:#e8eaf0;--dim:#7a8099;--mut:#4a5270;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh}
+body::before{content:'';position:fixed;inset:0;
+  background-image:linear-gradient(rgba(79,142,247,.03)1px,transparent 1px),
+  linear-gradient(90deg,rgba(79,142,247,.03)1px,transparent 1px);
+  background-size:40px 40px;pointer-events:none;z-index:0}
+.wrap{position:relative;z-index:1}
+
+/* Header */
+header{padding:18px 28px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:14px;
+  background:rgba(15,17,23,.94);backdrop-filter:blur(8px);position:sticky;top:0;z-index:200}
+.logo{font-size:24px}
+header h1{font-size:17px;font-weight:700;letter-spacing:-.2px}
+header p{font-size:11px;color:var(--dim);margin-top:2px}
+.hright{margin-left:auto;display:flex;gap:8px}
+
+/* Main */
+.main{max-width:1400px;margin:0 auto;padding:24px 20px}
+
+/* Summary */
+.summary{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:24px}
+.card{background:var(--sur);border:1px solid var(--bdr);border-radius:11px;padding:14px 16px;text-align:center}
+.cv{font-size:28px;font-weight:700;font-family:'IBM Plex Mono',monospace;line-height:1;margin-bottom:4px}
+.cl{font-size:11px;color:var(--dim)}
+.g{color:var(--grn)}.o{color:var(--orn)}.r{color:var(--red)}.b{color:var(--acc)}
+
+/* Controls */
+.ctrl{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+input[type=text]{background:var(--sur);border:1px solid var(--bdr);border-radius:8px;color:var(--txt);
+  padding:7px 12px;font-size:13px;font-family:'Noto Sans JP',sans-serif;outline:none;width:210px;
+  transition:border-color .2s}
+input[type=text]:focus{border-color:var(--acc)}
+select{background:var(--sur);border:1px solid var(--bdr);border-radius:8px;color:var(--txt);
+  padding:7px 12px;font-size:12px;font-family:'Noto Sans JP',sans-serif;outline:none;cursor:pointer;
+  transition:border-color .2s}
+select:focus{border-color:var(--acc)}
+.fb{padding:7px 13px;border-radius:8px;border:1px solid var(--bdr);background:var(--sur);
+  color:var(--txt);font-size:12px;font-family:'Noto Sans JP',sans-serif;cursor:pointer;transition:all .15s}
+.fb:hover{background:var(--sur2);border-color:var(--acc);color:var(--acc)}
+.fb.on{background:rgba(79,142,247,.15);border-color:var(--acc);color:var(--acc)}
+.btn{padding:7px 14px;border-radius:8px;border:1px solid var(--bdr);background:var(--sur2);
+  color:var(--txt);font-size:12px;font-weight:600;font-family:'Noto Sans JP',sans-serif;cursor:pointer}
+.btn:hover{background:var(--bdr)}
+
+/* Legend */
+.legend{display:flex;gap:16px;margin-bottom:12px;font-size:12px;color:var(--dim);flex-wrap:wrap;align-items:center}
+.li{display:flex;align-items:center;gap:5px}
+.ld{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* Table */
+.twrap{border:1px solid var(--bdr);border-radius:13px;overflow:auto;background:var(--sur);max-height:72vh}
+table{width:100%;border-collapse:collapse}
+thead th{background:var(--sur2);padding:10px 13px;text-align:left;font-size:10px;font-weight:600;
+  color:var(--dim);text-transform:uppercase;letter-spacing:.6px;border-bottom:1px solid var(--bdr);
+  white-space:nowrap;position:sticky;top:0;z-index:2}
+
+/* Sticky columns */
+thead th:nth-child(1){position:sticky;left:0;z-index:3;background:var(--sur2);min-width:56px;width:56px}
+thead th:nth-child(2){position:sticky;left:56px;z-index:3;background:var(--sur2);min-width:190px}
+thead th:nth-child(3){position:sticky;left:246px;z-index:3;background:var(--sur2);min-width:78px}
+thead th:nth-child(4){position:sticky;left:324px;z-index:3;background:var(--sur2);min-width:90px;border-right:1px solid var(--bdr)}
+
+thead th.c{text-align:center}
+
+tbody td{padding:9px 13px;font-size:13px;border-bottom:1px solid var(--bdr);vertical-align:middle;transition:background .1s}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:var(--sur2)}
+
+tbody td:nth-child(1){position:sticky;left:0;background:var(--sur);z-index:1;
+  font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--dim);width:56px}
+tbody td:nth-child(2){position:sticky;left:56px;background:var(--sur);z-index:1;font-weight:500;white-space:nowrap}
+tbody td:nth-child(3){position:sticky;left:246px;background:var(--sur);z-index:1;font-size:12px;color:var(--dim);white-space:nowrap}
+tbody td:nth-child(4){position:sticky;left:324px;background:var(--sur);z-index:1;font-size:11px;
+  color:var(--dim);white-space:nowrap;border-right:1px solid var(--bdr)}
+
+tbody tr:hover td:nth-child(1),tbody tr:hover td:nth-child(2),
+tbody tr:hover td:nth-child(3),tbody tr:hover td:nth-child(4){background:var(--sur2)}
+
+.cc{text-align:center}
+.ci{display:flex;flex-direction:column;align-items:center;gap:1px}
+.ml{font-size:10px;color:var(--dim);font-family:'IBM Plex Mono',monospace;display:none}
+.cross{color:var(--mut);font-size:15px}
+.pb{min-width:76px}
+.pl{font-size:11px;font-family:'IBM Plex Mono',monospace;text-align:center;margin-bottom:3px}
+.pbar{height:3px;background:var(--bdr);border-radius:2px;overflow:hidden}
+.pf{height:100%;border-radius:2px}
+
+/* Row color coding via left border on col2 */
+.ra td:nth-child(2){border-left:3px solid var(--grn)}
+.rp td:nth-child(2){border-left:3px solid var(--orn)}
+.rn td:nth-child(2){border-left:3px solid var(--red)}
+
+/* Area group header */
+.area-row td{background:var(--sur2)!important;font-size:11px;font-weight:700;
+  color:var(--acc);letter-spacing:.5px;padding:6px 13px;border-bottom:1px solid var(--bdr)}
+
+/* Note */
+.note{margin-top:16px;padding:12px 16px;background:rgba(79,142,247,.07);
+  border:1px solid rgba(79,142,247,.2);border-radius:10px;font-size:12px;color:var(--dim);line-height:1.8}
+.note strong{color:var(--acc)}
+
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:3px}
+
+@media print{
+  body{background:#fff;color:#000}body::before{display:none}
+  header{position:static;background:#fff;border-bottom:2px solid #ccc}
+  .ctrl,.btn{display:none}
+  .twrap{border:1px solid #ccc;max-height:none;overflow:visible}
+  thead th{background:#f0f0f0!important;color:#333}
+  tbody td{border-color:#ddd}
+  tbody td:nth-child(1),tbody td:nth-child(2),tbody td:nth-child(3),tbody td:nth-child(4){background:#fff!important}
+  .area-row td{background:#e8e8e8!important}
+}
+</style>
+</head>
+<body><div class="wrap">
+<header>
+  <div class="logo">📋</div>
+  <div>
+    <h1>Yogibo 研修参加状況</h1>
+    <p>Zoomミーティング参加記録 × 店舗マスタ突合　｜　ミーティングID: 475 651 5009　｜　集計日: 2026/03/10</p>
+  </div>
+  <div class="hright">
+    <button class="btn" onclick="exportCSV()">📥 CSV</button>
+    <button class="btn" onclick="window.print()">🖨 印刷</button>
+  </div>
+</header>
+
+<div class="main">
+  <div class="summary" id="summary"></div>
+  <div class="ctrl">
+    <input type="text" id="fi" placeholder="🔍 店舗名・コード・店長で絞り込み…" oninput="render()">
+    <select id="area-sel" onchange="render()">
+      <option value="">全エリア</option>
+      <option>関東</option><option>東海</option><option>関西</option>
+      <option>九州</option><option>中国</option><option>東北</option>
+      <option>北海道</option><option>四国</option><option>沖縄</option>
+      <option>北陸・甲信越</option>
+    </select>
+    <button class="fb on" id="f-all"  onclick="sf('all')">全店舗</button>
+    <button class="fb"    id="f-all3" onclick="sf('all3')">全3回参加</button>
+    <button class="fb"    id="f-some" onclick="sf('some')">一部参加</button>
+    <button class="fb"    id="f-none" onclick="sf('none')">未参加</button>
+    <button class="fb"    id="f-det"  onclick="toggleDet()">分数表示</button>
+    <div style="margin-left:auto;display:flex;gap:6px">
+      <button class="btn" onclick="sortBy('pct')">参加率順</button>
+      <button class="btn" onclick="sortBy('area')">エリア順</button>
+      <button class="btn" onclick="sortBy('code')">コード順</button>
+    </div>
+  </div>
+  <div class="legend">
+    <div class="li"><div class="ld" style="background:var(--grn)"></div>全3回参加</div>
+    <div class="li"><div class="ld" style="background:var(--orn)"></div>一部参加</div>
+    <div class="li"><div class="ld" style="background:var(--red)"></div>未参加</div>
+    <div style="margin-left:auto;font-size:11px;color:var(--mut)">有効参加：5分以上　主催者・管理者は除外済み</div>
+  </div>
+  <div class="twrap"><table id="tbl"><thead id="th"></thead><tbody id="tb"></tbody></table></div>
+  <div class="note">
+    <strong>名寄せ・表記ゆれ補正済み</strong>　店舗マスタ・スタッフリスト（店長名）と突合しました。<br>
+    「AM川口店」→ イオンモール川口 ／ 「酒々井プレミアムアウトレット」→ 酒々井PREMIUM OUTLET ／
+    「浜田 真梨絵」→ イオンモール京都桂川（店長名照合）／ 「yogibo長久手 高田」→ イオンモール長久手 など52名分を自動・手動補正。<br>
+    <strong>注意</strong>：イオンモール川口・酒々井PREMIUM OUTLET・イオンモール須坂・イオンモール伊丹昆陽は店舗コードを仮割当しています。
+  </div>
+</div></div>
+
+<script>
+const STORES   = [["AQM", "あべのキューズモール", "中村 香蓮", "関西"], ["MHM", "御堂筋本町", "岸 咲良", "関西"], ["LSM", "ららぽーと新三郷", "深沢 英彰", "関東"], ["LTB", "ららぽーとTOKYO-BAY", "宮狭 ゆかり", "関東"], ["KZH", "くずはモール", "稲垣 佐希子", "関西"], ["CCC", "コクーンシティ", "恒松 嵩人", "関東"], ["NMG", "西宮ガーデンズ", "佐藤 弘章", "関西"], ["SMA", "新宿マルイ アネックス", "茶原 駿兵", "関東"], ["LSH", "ららぽーと湘南平塚", "立川 菜弥華", "関東"], ["AMN", "イオンモール名古屋茶屋", "村松 和宏", "東海"], ["AMO", "イオンモール岡山", "藤田 ひな", "中国"], ["LEX", "ららぽーとEXPOCITY", "山本 謙也", "関西"], ["NFM", "ならファミリー", "小南 穂乃果", "関西"], ["IPS", "インターパークスタジアム", "中島 健登", "関東"], ["AOT", "イオンモール大高", "柴田 誠也", "東海"], ["AFK", "イオンモール福岡", "古賀 宕子", "九州"], ["YCY", "八千代", "深沢 英彰", "関東"], ["LTT", "ららぽーと立川立飛", "村本 悠菜", "関東"], ["AHS", "イオンモール札幌発寒", "髙橋 采佳", "北海道"], ["TOH", "THE OUTLETS HIROSHIMA", "田中 希望", "中国"], ["CCH", "キャナルシティ博多", "高江 彩香", "九州"], ["LIZ", "ららぽーと和泉", "高橋 太一", "関西"], ["AMS", "イオンモール幕張新都心", "君嶋 香織", "関東"], ["LFM", "ららぽーと富士見", "森下 利昭", "関東"], ["MMM", "MARK IS みなとみらい", "上野 和奏", "関東"], ["LEB", "ららぽーと海老名", "石田 江理子", "関東"], ["AHN", "イオンモール羽生", "斉藤 直美", "関東"], ["LMA", "ららぽーと名古屋みなとアクルス", "二部 瑞基", "東海"], ["ANK", "イオンモール長久手", "福尾 誠人", "東海"], ["ACK", "イオンモール筑紫野", "宮原 満男", "九州"], ["AMT", "イオンモール徳島", "大石 若奈", "四国"], ["MLR", "モレラ岐阜", "渡邉 健人", "東海"], ["IAS", "イーアスつくば", "余宮 光大", "関東"], ["AKY", "イオンモールKYOTO", "宮田 郁弥", "関西"], ["ANT", "イオンモール名取", "佐々木 夕珠", "東北"], ["ATK", "イオンモール苫小牧", "原田 大輝", "北海道"], ["AHF", "イオンモール広島府中", "井上 香織", "中国"], ["OLK", "オリナス錦糸町", "茶原 駿兵", "関東"], ["KKK", "キラリナ京王吉祥寺", "田中 月", "関東"], ["LNZ", "ららぽーと沼津", "日下 敦弥", "東海"], ["NMB", "なんばパークス", "岡内 大紀", "関西"], ["TRY", "トレッサ横浜", "髙橋 真琴", "関東"], ["FTR", "二子玉川ライズ", "白畑 圭一", "関東"], ["AWY", "イオンモール和歌山", "谷口 ことみ", "関西"], ["MRD", "大同生命札幌ビル miredo", "岡部 聖耶", "北海道"], ["AAG", "有明ガーデン", "岩井 梓", "関東"], ["LAT", "ららぽーと愛知東郷", "佐藤 奨時", "東海"], ["KHU", "神戸ハーバーランドumie", "山田 剛史", "関西"], ["LCA", "ルクア大阪", "清村 麻友", "関西"], ["KST", "イオンモール草津", "大野 拓美", "関西"], ["MIS", "MARK IS 静岡", "西山 瑞起", "東海"], ["LPY", "ららぽーと横浜", "高橋 真琴", "関東"], ["APK", "アミュプラザくまもと", "中川 希実子", "九州"], ["UPC", "浦添 PARCO CITY", "浦崎 広作", "沖縄"], ["AMH", "イオンモール白山", "石原 玲菜", "北陸・甲信越"], ["ASZ", "イオンモール鈴鹿", "小川 博文", "東海"], ["ALM", "イオンレイクタウンmori", "山内 真理恵", "関東"], ["APO", "アミュプラザおおいた", "小野本 翔", "九州"], ["AYH", "イオンモール八幡東", "河合 巧喜", "九州"], ["AOZ", "イオンモール岡崎", "村上 善章", "東海"], ["NGS", "名古屋栄", "中林 真希", "東海"], ["SSC", "池袋サンシャインシティ", "中村 譲之介", "関東"], ["AHR", "イオンモール浜松志都呂", "村松 和宏", "東海"], ["AHI", "イオンモール浜松市野", "堤 大和", "東海"], ["AMZ", "イオンモール宮崎", "佐藤 悠磨", "九州"], ["MWC", "mozoワンダーシティ", "渡邉 健人", "東海"], ["AKA", "イオンモール鹿児島", "笠水上 将己", "九州"], ["OSP", "おのだサンパーク", "宮﨑 晶", "中国"], ["AKK", "イオンモール京都桂川", "浜田 真梨絵", "関西"], ["MIF", "MARK IS 福岡ももち", "安藤 孝志", "九州"], ["AHO", "イオンモール姫路大津", "島谷 隆三", "関西"], ["ATD", "イオンモール天童", "渡辺 正昇", "東北"], ["SBY", "渋谷宮下公園前", "岩田 正平", "関東"], ["SIS", "スマーク伊勢崎", "小国 楓恋", "関東"], ["AKR", "イオンモール倉敷", "一ノ木 祥太", "中国"], ["ROT", "りんくうプレミアム・アウトレット", "高橋 太一", "関西"], ["LLS", "ららぽーと堺", "中村 香蓮", "関西"], ["AMU", "イオンモール水戸内原", "根本 蘭", "関東"], ["AHM", "アリオ橋本", "岩下 麻美", "関東"], ["ACO", "アクアシティお台場", "岩田 正平", "関東"], ["ATY", "イオンモール豊川", "緒方 隆哉", "東海"], ["LPK", "ららぽーと門真", "白井 蓮菜", "関西"], ["ATS", "イオンモール高崎", "新井 祐貴", "関東"], ["AKH", "イオンモール橿原", "吉田 雅", "関西"], ["LGN", "ララガーデン長町", "田頭 智也", "東北"], ["LLF", "ららぽーと福岡", "間部 隆嗣", "九州"], ["AAY", "イオンモール綾川", "岩部 悠利", "四国"], ["RSS", "ラソラ札幌", "中原 章吾", "北海道"], ["KGM", "イオンモール各務原インター", "織田 直子", "東海"], ["AMA", "イオンモール旭川西", "田ノ上 雄紀", "北海道"], ["SPA", "セブンパークアリオ柏", "佐藤 敦司", "関東"], ["KSD", "木更津", "柿内 悠太", "関東"], ["APN", "アミュプラザ長崎", "坂田 恭子", "九州"], ["AKT", "イオンモール熊本", "宮尾 姫星", "九州"], ["NGT", "イオンモール新潟亀田インター", "阿部 太尊", "北陸・甲信越"], ["ETT", "エミテラス所沢", "中村 譲之介", "関東"], ["AMK", "イオンモール川口", "", "関東"], ["SIO", "酒々井PREMIUM OUTLET", "", "関東"], ["ISZ", "イオンモール須坂", "", "北陸・甲信越"], ["IMI", "イオンモール伊丹昆陽", "", "関西"]];
+const MEETINGS = ["3/6 Premium", "3/6 Cover", "3/10 接客基礎"];
+const RESULT   = {"AQM": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "MHM": {"3/6 Premium": null, "3/6 Cover": 71, "3/10 接客基礎": 64}, "LSM": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "LTB": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "KZH": {"3/6 Premium": 65, "3/6 Cover": null, "3/10 接客基礎": 64}, "CCC": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "NMG": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "SMA": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "LSH": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": 58}, "AMN": {"3/6 Premium": 52, "3/6 Cover": null, "3/10 接客基礎": 64}, "AMO": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "LEX": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "NFM": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": 63}, "IPS": {"3/6 Premium": null, "3/6 Cover": 73, "3/10 接客基礎": null}, "AOT": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": 64}, "AFK": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "YCY": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "LTT": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "AHS": {"3/6 Premium": 63, "3/6 Cover": 73, "3/10 接客基礎": 63}, "TOH": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "CCH": {"3/6 Premium": null, "3/6 Cover": 73, "3/10 接客基礎": 64}, "LIZ": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "AMS": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "LFM": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "MMM": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "LEB": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "AHN": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "LMA": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "ANK": {"3/6 Premium": 65, "3/6 Cover": null, "3/10 接客基礎": null}, "ACK": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "AMT": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "MLR": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "IAS": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "AKY": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "ANT": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "ATK": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "AHF": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": 64}, "OLK": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": 14}, "KKK": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "LNZ": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": 62}, "NMB": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "TRY": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "FTR": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": 64}, "AWY": {"3/6 Premium": 64, "3/6 Cover": 73, "3/10 接客基礎": 64}, "MRD": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "AAG": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "LAT": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "KHU": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": 62}, "LCA": {"3/6 Premium": 65, "3/6 Cover": null, "3/10 接客基礎": null}, "KST": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "MIS": {"3/6 Premium": 64, "3/6 Cover": 73, "3/10 接客基礎": null}, "LPY": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "APK": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "UPC": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": 64}, "AMH": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "ASZ": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": 64}, "ALM": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "APO": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "AYH": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "AOZ": {"3/6 Premium": null, "3/6 Cover": 32, "3/10 接客基礎": null}, "NGS": {"3/6 Premium": 65, "3/6 Cover": 73, "3/10 接客基礎": 64}, "SSC": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "AHR": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": 64}, "AHI": {"3/6 Premium": null, "3/6 Cover": 73, "3/10 接客基礎": null}, "AMZ": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "MWC": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "AKA": {"3/6 Premium": 61, "3/6 Cover": null, "3/10 接客基礎": 64}, "OSP": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "AKK": {"3/6 Premium": 64, "3/6 Cover": null, "3/10 接客基礎": null}, "MIF": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "AHO": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "ATD": {"3/6 Premium": 63, "3/6 Cover": 72, "3/10 接客基礎": null}, "SBY": {"3/6 Premium": 58, "3/6 Cover": 72, "3/10 接客基礎": 46}, "SIS": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "AKR": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "ROT": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "LLS": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "AMU": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": 64}, "AHM": {"3/6 Premium": null, "3/6 Cover": 73, "3/10 接客基礎": 64}, "ACO": {"3/6 Premium": 65, "3/6 Cover": 74, "3/10 接客基礎": null}, "ATY": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "LPK": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": 50}, "ATS": {"3/6 Premium": 64, "3/6 Cover": null, "3/10 接客基礎": 64}, "AKH": {"3/6 Premium": 65, "3/6 Cover": null, "3/10 接客基礎": null}, "LGN": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "LLF": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "AAY": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "RSS": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": 64}, "KGM": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "AMA": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "SPA": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "KSD": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "APN": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "AKT": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "NGT": {"3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null}, "ETT": {"3/6 Premium": null, "3/6 Cover": 74, "3/10 接客基礎": null}, "AMK": {"3/6 Premium": null, "3/6 Cover": 73, "3/10 接客基礎": 64}, "SIO": {"3/6 Premium": null, "3/6 Cover": 73, "3/10 接客基礎": 63}, "ISZ": {"3/6 Premium": null, "3/6 Cover": 73, "3/10 接客基礎": null}, "IMI": {"3/6 Premium": null, "3/6 Cover": 73, "3/10 接客基礎": null}};
+
+const AREA_ORDER = ['関東','東海','関西','九州','中国','東北','北海道','四国','沖縄','北陸・甲信越',''];
+
+// store_map: code -> {code,name,manager,area}
+const SM = {};
+STORES.forEach(s => SM[s[0]] = {code:s[0],name:s[1],manager:s[2],area:s[3]||''});
+
+let fmode='all', showDet=false, sortMode='pct';
+
+function getPct(code){
+  const done = MEETINGS.filter(m => RESULT[code][m]!==null).length;
+  return Math.round(done/MEETINGS.length*100);
+}
+
+function sf(m){
+  fmode=m;
+  ['all','all3','some','none'].forEach(x=>document.getElementById('f-'+x).classList.toggle('on',x===m));
+  render();
+}
+
+function toggleDet(){
+  showDet=!showDet;
+  document.getElementById('f-det').classList.toggle('on',showDet);
+  document.querySelectorAll('.ml').forEach(e=>e.style.display=showDet?'block':'none');
+}
+
+function sortBy(m){sortMode=m;render();}
+
+function render(){
+  const fi   = document.getElementById('fi').value.trim();
+  const area = document.getElementById('area-sel').value;
+
+  let codes = Object.keys(RESULT).filter(code=>{
+    const s = SM[code];
+    if(fi && !s.name.includes(fi) && !s.code.includes(fi) && !s.manager.includes(fi)) return false;
+    if(area && s.area!==area) return false;
+    const done = MEETINGS.filter(m=>RESULT[code][m]!==null).length;
+    if(fmode==='all3') return done===MEETINGS.length;
+    if(fmode==='some') return done>0 && done<MEETINGS.length;
+    if(fmode==='none') return done===0;
+    return true;
+  });
+
+  // Sort
+  if(sortMode==='pct')  codes.sort((a,b)=>getPct(b)-getPct(a)||a.localeCompare(b,'ja'));
+  if(sortMode==='code') codes.sort((a,b)=>a.localeCompare(b));
+  if(sortMode==='area') codes.sort((a,b)=>{
+    const ai=AREA_ORDER.indexOf(SM[a].area), bi=AREA_ORDER.indexOf(SM[b].area);
+    return (ai===-1?99:ai)-(bi===-1?99:bi)||SM[a].name.localeCompare(SM[b].name,'ja');
+  });
+
+  // Summary (based on all stores, not filtered)
+  const all = Object.keys(RESULT);
+  const c3  = all.filter(c=>MEETINGS.every(m=>RESULT[c][m]!==null)).length;
+  const cs  = all.filter(c=>MEETINGS.some(m=>RESULT[c][m]!==null)&&!MEETINGS.every(m=>RESULT[c][m]!==null)).length;
+  const cn  = all.filter(c=>MEETINGS.every(m=>RESULT[c][m]===null)).length;
+  document.getElementById('summary').innerHTML=`
+    <div class="card"><div class="cv b">${all.length}</div><div class="cl">総店舗数</div></div>
+    <div class="card"><div class="cv g">${c3}</div><div class="cl">全3回参加</div></div>
+    <div class="card"><div class="cv o">${cs}</div><div class="cl">一部参加</div></div>
+    <div class="card"><div class="cv r">${cn}</div><div class="cl">未参加</div></div>
+    <div class="card"><div class="cv">${MEETINGS.length}</div><div class="cl">ミーティング数</div></div>`;
+
+  // Header
+  document.getElementById('th').innerHTML=`<tr>
+    <th>コード</th><th>店舗名</th><th>店長</th><th>エリア</th>
+    ${MEETINGS.map(m=>`<th class="c">${m}</th>`).join('')}
+    <th class="c">参加率</th></tr>`;
+
+  // Body
+  let prevArea='__', rows='';
+  codes.forEach(code=>{
+    const s=SM[code];
+    if(sortMode==='area' && s.area!==prevArea){
+      rows+=`<tr class="area-row"><td colspan="${4+MEETINGS.length+1}">${s.area||'その他'}</td></tr>`;
+      prevArea=s.area;
+    }
+    const done=MEETINGS.filter(m=>RESULT[code][m]!==null).length;
+    const pct=Math.round(done/MEETINGS.length*100);
+    const rc=pct===100?'ra':pct>0?'rp':'rn';
+    const bc=pct===100?'var(--grn)':pct>0?'var(--orn)':'var(--red)';
+    const cells=MEETINGS.map(m=>{
+      const v=RESULT[code][m];
+      if(!v) return `<td class="cc"><span class="cross">−</span></td>`;
+      return `<td class="cc"><div class="ci"><span style="font-size:16px">✅</span>
+        <span class="ml" style="display:${showDet?'block':'none'}">${v}分</span></div></td>`;
+    }).join('');
+    rows+=`<tr class="${rc}">
+      <td>${esc(code)}</td><td>${esc(s.name)}</td>
+      <td>${esc(s.manager||'−')}</td><td>${esc(s.area||'−')}</td>
+      ${cells}
+      <td class="pb"><div class="pl" style="color:${bc}">${pct}%</div>
+        <div class="pbar"><div class="pf" style="width:${pct}%;background:${bc}"></div></div></td>
+    </tr>`;
+  });
+  document.getElementById('tb').innerHTML=rows;
+}
+
+function exportCSV(){
+  const rows=[['コード','店舗名','店長','エリア',...MEETINGS,'参加率(%)']];
+  Object.keys(RESULT).sort().forEach(code=>{
+    const s=SM[code];
+    const vals=MEETINGS.map(m=>RESULT[code][m]?`✓(${RESULT[code][m]}分)`:'');
+    const pct=Math.round(MEETINGS.filter(m=>RESULT[code][m]!==null).length/MEETINGS.length*100);
+    rows.push([code,s.name,s.manager||'',s.area||'',...vals,pct]);
+  });
+  const bom='﻿',csv=bom+rows.map(r=>r.map(v=>`"${v}"`).join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download='Yogibo研修参加状況.csv';a.click();
+}
+
+function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+render();
+</script>
+</body></html>
