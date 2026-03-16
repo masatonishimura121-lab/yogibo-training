@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Yogibo 講座参加者詳細</title>
+<title>Yogibo 講座参加状況</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap');
 :root{
@@ -14,78 +14,103 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh}
 body::before{content:'';position:fixed;inset:0;
-  background-image:linear-gradient(rgba(79,142,247,.03)1px,transparent 1px),linear-gradient(90deg,rgba(79,142,247,.03)1px,transparent 1px);
+  background-image:linear-gradient(rgba(79,142,247,.03)1px,transparent 1px),
+  linear-gradient(90deg,rgba(79,142,247,.03)1px,transparent 1px);
   background-size:40px 40px;pointer-events:none;z-index:0}
 .wrap{position:relative;z-index:1}
+
+/* Header */
 header{padding:18px 28px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:14px;
   background:rgba(15,17,23,.94);backdrop-filter:blur(8px);position:sticky;top:0;z-index:200}
 .logo{font-size:24px}
-header h1{font-size:17px;font-weight:700}
+header h1{font-size:17px;font-weight:700;letter-spacing:-.2px}
 header p{font-size:11px;color:var(--dim);margin-top:2px}
 .hright{margin-left:auto;display:flex;gap:8px}
-.main{max-width:1200px;margin:0 auto;padding:24px 20px}
 
-/* Summary badges */
-.badges{display:flex;gap:10px;margin-bottom:22px;flex-wrap:wrap}
-.badge{background:var(--sur);border:1px solid var(--bdr);border-radius:20px;padding:6px 14px;
-  font-size:12px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:6px}
-.badge:hover{border-color:var(--acc);color:var(--acc)}
-.badge.on{background:rgba(79,142,247,.15);border-color:var(--acc);color:var(--acc)}
-.badge-count{font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:13px}
+/* Main */
+.main{max-width:1400px;margin:0 auto;padding:24px 20px}
+
+/* Summary */
+.summary{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:24px}
+.card{background:var(--sur);border:1px solid var(--bdr);border-radius:11px;padding:14px 16px;text-align:center}
+.cv{font-size:28px;font-weight:700;font-family:'IBM Plex Mono',monospace;line-height:1;margin-bottom:4px}
+.cl{font-size:11px;color:var(--dim)}
+.g{color:var(--grn)}.o{color:var(--orn)}.r{color:var(--red)}.b{color:var(--acc)}
 
 /* Controls */
-.ctrl{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.ctrl{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
 input[type=text]{background:var(--sur);border:1px solid var(--bdr);border-radius:8px;color:var(--txt);
-  padding:7px 12px;font-size:13px;font-family:'Noto Sans JP',sans-serif;outline:none;width:220px;transition:border-color .2s}
+  padding:7px 12px;font-size:13px;font-family:'Noto Sans JP',sans-serif;outline:none;width:210px;
+  transition:border-color .2s}
 input[type=text]:focus{border-color:var(--acc)}
 select{background:var(--sur);border:1px solid var(--bdr);border-radius:8px;color:var(--txt);
-  padding:7px 12px;font-size:12px;font-family:'Noto Sans JP',sans-serif;outline:none;cursor:pointer}
+  padding:7px 12px;font-size:12px;font-family:'Noto Sans JP',sans-serif;outline:none;cursor:pointer;
+  transition:border-color .2s}
 select:focus{border-color:var(--acc)}
+.fb{padding:7px 13px;border-radius:8px;border:1px solid var(--bdr);background:var(--sur);
+  color:var(--txt);font-size:12px;font-family:'Noto Sans JP',sans-serif;cursor:pointer;transition:all .15s}
+.fb:hover{background:var(--sur2);border-color:var(--acc);color:var(--acc)}
+.fb.on{background:rgba(79,142,247,.15);border-color:var(--acc);color:var(--acc)}
 .btn{padding:7px 14px;border-radius:8px;border:1px solid var(--bdr);background:var(--sur2);
   color:var(--txt);font-size:12px;font-weight:600;font-family:'Noto Sans JP',sans-serif;cursor:pointer}
 .btn:hover{background:var(--bdr)}
 
-/* View toggle */
-.view-tabs{display:flex;gap:0;background:var(--sur);border:1px solid var(--bdr);border-radius:8px;overflow:hidden;margin-bottom:18px}
-.vtab{padding:8px 18px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;
-  font-family:'Noto Sans JP',sans-serif;border:none;background:transparent;color:var(--dim)}
-.vtab.on{background:var(--acc);color:#fff}
+/* Legend */
+.legend{display:flex;gap:16px;margin-bottom:12px;font-size:12px;color:var(--dim);flex-wrap:wrap;align-items:center}
+.li{display:flex;align-items:center;gap:5px}
+.ld{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 
-/* Store grouped view */
-.store-group{background:var(--sur);border:1px solid var(--bdr);border-radius:12px;margin-bottom:14px;overflow:hidden}
-.sg-header{padding:14px 18px;display:flex;align-items:center;gap:12px;cursor:pointer;
-  border-bottom:1px solid var(--bdr);transition:background .15s}
-.sg-header:hover{background:var(--sur2)}
-.sg-code{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--dim);min-width:40px}
-.sg-name{font-weight:600;font-size:14px}
-.sg-manager{font-size:12px;color:var(--dim);margin-left:4px}
-.sg-area{font-size:11px;color:var(--mut);margin-left:auto}
-.sg-chips{display:flex;gap:6px;margin-left:12px}
-.chip{padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600}
-.chip-grn{background:rgba(56,217,169,.15);color:var(--grn)}
-.chip-orn{background:rgba(255,169,77,.15);color:var(--orn)}
-.sg-body{padding:0}
-.sg-row{display:flex;align-items:center;gap:12px;padding:10px 18px;border-bottom:1px solid var(--bdr);font-size:13px}
-.sg-row:last-child{border-bottom:none}
-.sg-row:hover{background:var(--sur2)}
-.zoom-name{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--dim);min-width:260px;word-break:break-all}
-.mtg-tag{padding:3px 10px;border-radius:6px;font-size:11px;font-weight:600;white-space:nowrap}
-.mins-tag{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--mut)}
-.collapsed .sg-body{display:none}
-.arrow{font-size:11px;color:var(--mut);transition:transform .2s;margin-left:4px}
-.collapsed .arrow{transform:rotate(-90deg)}
-
-/* Timeline / flat list view */
+/* Table */
 .twrap{border:1px solid var(--bdr);border-radius:13px;overflow:auto;background:var(--sur);max-height:72vh}
 table{width:100%;border-collapse:collapse}
-thead th{background:var(--sur2);padding:10px 14px;text-align:left;font-size:10px;font-weight:600;
+thead th{background:var(--sur2);padding:10px 13px;text-align:left;font-size:10px;font-weight:600;
   color:var(--dim);text-transform:uppercase;letter-spacing:.6px;border-bottom:1px solid var(--bdr);
   white-space:nowrap;position:sticky;top:0;z-index:2}
+
+/* Sticky columns */
+thead th:nth-child(1){position:sticky;left:0;z-index:3;background:var(--sur2);min-width:56px;width:56px}
+thead th:nth-child(2){position:sticky;left:56px;z-index:3;background:var(--sur2);min-width:190px}
+thead th:nth-child(3){position:sticky;left:246px;z-index:3;background:var(--sur2);min-width:78px}
+thead th:nth-child(4){position:sticky;left:324px;z-index:3;background:var(--sur2);min-width:90px;border-right:1px solid var(--bdr)}
+
 thead th.c{text-align:center}
-tbody td{padding:10px 14px;font-size:13px;border-bottom:1px solid var(--bdr);vertical-align:middle}
+
+tbody td{padding:9px 13px;font-size:13px;border-bottom:1px solid var(--bdr);vertical-align:middle;transition:background .1s}
 tbody tr:last-child td{border-bottom:none}
 tbody tr:hover td{background:var(--sur2)}
-.mono{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--dim)}
+
+tbody td:nth-child(1){position:sticky;left:0;background:var(--sur);z-index:1;
+  font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--dim);width:56px}
+tbody td:nth-child(2){position:sticky;left:56px;background:var(--sur);z-index:1;font-weight:500;white-space:nowrap}
+tbody td:nth-child(3){position:sticky;left:246px;background:var(--sur);z-index:1;font-size:12px;color:var(--dim);white-space:nowrap}
+tbody td:nth-child(4){position:sticky;left:324px;background:var(--sur);z-index:1;font-size:11px;
+  color:var(--dim);white-space:nowrap;border-right:1px solid var(--bdr)}
+
+tbody tr:hover td:nth-child(1),tbody tr:hover td:nth-child(2),
+tbody tr:hover td:nth-child(3),tbody tr:hover td:nth-child(4){background:var(--sur2)}
+
+.cc{text-align:center}
+.ci{display:flex;flex-direction:column;align-items:center;gap:1px}
+.ml{font-size:10px;color:var(--dim);font-family:'IBM Plex Mono',monospace;display:none}
+.cross{color:var(--mut);font-size:15px}
+.pb{min-width:76px}
+.pl{font-size:11px;font-family:'IBM Plex Mono',monospace;text-align:center;margin-bottom:3px}
+.pbar{height:3px;background:var(--bdr);border-radius:2px;overflow:hidden}
+.pf{height:100%;border-radius:2px}
+
+/* Row color coding via left border on col2 */
+.ra td:nth-child(2){border-left:3px solid var(--grn)}
+.rp td:nth-child(2){border-left:3px solid var(--orn)}
+.rn td:nth-child(2){border-left:3px solid var(--red)}
+
+/* Area group header */
+.area-row td{background:var(--sur2)!important;font-size:11px;font-weight:700;
+  color:var(--acc);letter-spacing:.5px;padding:6px 13px;border-bottom:1px solid var(--bdr)}
+
+/* Note */
+.note{margin-top:16px;padding:12px 16px;background:rgba(79,142,247,.07);
+  border:1px solid rgba(79,142,247,.2);border-radius:10px;font-size:12px;color:var(--dim);line-height:1.8}
+.note strong{color:var(--acc)}
 
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-track{background:transparent}
@@ -94,36 +119,33 @@ tbody tr:hover td{background:var(--sur2)}
 @media print{
   body{background:#fff;color:#000}body::before{display:none}
   header{position:static;background:#fff;border-bottom:2px solid #ccc}
-  .ctrl,.btn,.view-tabs,.badges{display:none}
-  .twrap{max-height:none;overflow:visible;border:1px solid #ccc}
+  .ctrl,.btn{display:none}
+  .twrap{border:1px solid #ccc;max-height:none;overflow:visible}
   thead th{background:#f0f0f0!important;color:#333}
   tbody td{border-color:#ddd}
-  .store-group{border:1px solid #ccc;margin-bottom:10px}
-  .sg-header{background:#f5f5f5!important;border-bottom:1px solid #ccc}
-  .collapsed .sg-body{display:block!important}
+  tbody td:nth-child(1),tbody td:nth-child(2),tbody td:nth-child(3),tbody td:nth-child(4){background:#fff!important}
+  .area-row td{background:#e8e8e8!important}
 }
 </style>
 </head>
 <body><div class="wrap">
 <header>
-  <div class="logo">👥</div>
+  <div class="logo">📋</div>
   <div>
-    <h1>Yogibo 講座参加者詳細</h1>
-    <p>Zoom表示名・参加研修・参加時間の一覧　｜　ミーティングID: 475 651 5009</p>
+    <h1>Yogibo 講座参加状況</h1>
+    <p>Zoomミーティング参加記録 × 店舗マスタ突合　｜　ミーティングID: 475 651 5009　｜　集計日: 2026/03/10</p>
   </div>
   <div class="hright">
+    <a class="hbtn" href="yogibo_upload.html">📤 CSVアップロード</a>
     <button class="btn" onclick="exportCSV()">📥 CSV</button>
     <button class="btn" onclick="window.print()">🖨 印刷</button>
-    <button class="btn" onclick="window.open('yogibo_training_v3.html')">📋 参加状況表</button>
   </div>
 </header>
+
 <div class="main">
-
-  <!-- 研修フィルターバッジ -->
-  <div class="badges" id="badges"></div>
-
+  <div class="summary" id="summary"></div>
   <div class="ctrl">
-    <input type="text" id="fi" placeholder="🔍 店舗名・Zoom表示名で絞り込み…" oninput="render()">
+    <input type="text" id="fi" placeholder="🔍 店舗名・コード・店長で絞り込み…" oninput="render()">
     <select id="area-sel" onchange="render()">
       <option value="">全エリア</option>
       <option>北海道</option><option>東北</option><option>関東</option>
@@ -137,248 +159,183 @@ tbody tr:hover td{background:var(--sur2)}
       <option>佐伯</option><option>渡邊</option><option>花渕</option>
       <option>荒金</option><option>西村</option>
     </select>
-    <select id="ops-sel-d" onchange="render()">
-      <option value="">全運営</option>
-      <option value="直営">直営</option>
-      <option value="代行">代行</option>
-      <option value="FC">FC</option>
-    </select>
     <select id="month-sel" onchange="render()">
       <option value="">全期間</option>
       <option value="2">2月</option>
       <option value="3">3月</option>
     </select>
+    <select id="ops-sel" onchange="render()">
+      <option value="">全運営</option>
+      <option value="直営">直営</option>
+      <option value="代行">代行</option>
+      <option value="FC">FC</option>
+    </select>
+    <button class="fb on" id="f-all"  onclick="sf('all')">全店舗</button>
+    <button class="fb"    id="f-some" onclick="sf('some')">一部参加</button>
+    <button class="fb"    id="f-none" onclick="sf('none')">未参加</button>
+    <button class="fb"    id="f-det"  onclick="toggleDet()">分数表示</button>
+    <div style="margin-left:auto;display:flex;gap:6px">
+      <button class="btn" onclick="sortBy('pct')">参加率順</button>
+      <button class="btn" onclick="sortBy('am')">AM順</button>
+        <button class="btn" onclick="sortBy('month')">月順</button>
+        <button class="btn" onclick="sortBy('area')">エリア順</button>
+      <button class="btn" onclick="sortBy('code')">コード順</button>
+    </div>
   </div>
-
-  <div class="view-tabs">
-    <button class="vtab on" id="vt-store" onclick="setView('store')">🏪 店舗別</button>
-    <button class="vtab" id="vt-mtg"   onclick="setView('mtg')">📅 研修別</button>
-    <button class="vtab" id="vt-flat"  onclick="setView('flat')">📋 一覧</button>
+  <div class="legend">
+    <div class="li"><div class="ld" style="background:var(--grn)"></div>全3回参加</div>
+    <div class="li"><div class="ld" style="background:var(--orn)"></div>一部参加</div>
+    <div class="li"><div class="ld" style="background:var(--red)"></div>未参加</div>
+    <div style="margin-left:auto;font-size:11px;color:var(--mut)">有効参加：5分以上　主催者・管理者は除外済み</div>
   </div>
-
-  <div id="content"></div>
+  <div class="twrap"><table id="tbl"><thead id="th"></thead><tbody id="tb"></tbody></table></div>
+  <div class="note">
+    <strong>名寄せ・表記ゆれ補正済み</strong>　店舗マスタ・スタッフリスト（店長名）と突合しました。<br>
+    「AM川口店」→ イオンモール川口 ／ 「酒々井プレミアムアウトレット」→ 酒々井PREMIUM OUTLET ／
+    「浜田 真梨絵」→ イオンモール京都桂川（店長名照合）／ 「yogibo長久手 高田」→ イオンモール長久手 など52名分を自動・手動補正。<br>
+    <strong>注意</strong>：イオンモール川口・酒々井PREMIUM OUTLET・イオンモール須坂・イオンモール伊丹昆陽は店舗コードを仮割当しています。
+  </div>
 </div></div>
 
 <script>
-const ZOOM_LOG = [{"zoom": "アウトレット広島", "mtg": "2/3 ３笑講座", "store": "TOH", "mins": 57}, {"zoom": "アリオ橋本 石川三玲", "mtg": "2/3 ３笑講座", "store": "AHM", "mins": 55}, {"zoom": "イーアスつくば", "mtg": "2/3 ３笑講座", "store": "IAS", "mins": 56}, {"zoom": "池袋サンシャインシティ店 ソン", "mtg": "2/3 ３笑講座", "store": "SSC", "mins": 65}, {"zoom": "キャナルシティ博多店 高江", "mtg": "2/3 ３笑講座", "store": "CCH", "mins": 39}, {"zoom": "mark is みなとみらい", "mtg": "2/3 ３笑講座", "store": "MMM", "mins": 46}, {"zoom": "イオンモール高崎店", "mtg": "2/3 ３笑講座", "store": "ATS", "mins": 48}, {"zoom": "oodaka yogibo", "mtg": "2/3 ３笑講座", "store": "AOT", "mins": 55}, {"zoom": "マークイズ静岡 齊藤", "mtg": "2/3 ３笑講座", "store": "MIS", "mins": 58}, {"zoom": "広島府中", "mtg": "2/4 ３笑講座", "store": "AHF", "mins": 51}, {"zoom": "MARKIS静岡", "mtg": "2/4 ３笑講座", "store": "MIS", "mins": 49}, {"zoom": "アミュプラザおおいた", "mtg": "2/4 ３笑講座", "store": "APO", "mins": 58}, {"zoom": "AM名古屋茶屋", "mtg": "2/4 ３笑講座", "store": "AMN", "mins": 59}, {"zoom": "アリオ橋本 髙橋未羽", "mtg": "2/4 ３笑講座", "store": "AHM", "mins": 56}, {"zoom": "AM浜松志都呂", "mtg": "2/4 ３笑講座", "store": "AHR", "mins": 61}, {"zoom": "池袋サンシャインシティ店 ソン", "mtg": "2/4 ３笑講座", "store": "SSC", "mins": 55}, {"zoom": "キャナルシティ博多店 高江", "mtg": "2/4 ３笑講座", "store": "CCH", "mins": 54}, {"zoom": "mark is みなとみらい", "mtg": "2/4 ３笑講座", "store": "MMM", "mins": 56}, {"zoom": "名古屋栄店　中林真希", "mtg": "2/4 ３笑講座", "store": "NGS", "mins": 61}, {"zoom": "AM市野 (堤大和)", "mtg": "2/4 ３笑講座", "store": "AHI", "mins": 62}, {"zoom": "くずはモール稲垣", "mtg": "2/4 ３笑講座", "store": "KZH", "mins": 54}, {"zoom": "イオンモール和歌山 (イオンモール和歌山 笠水上)", "mtg": "2/6 Premium", "store": "AWY", "mins": 63}, {"zoom": "アリオ橋本　石橋 (shohei ishibashi)", "mtg": "2/6 Premium", "store": "AHM", "mins": 59}, {"zoom": "渋谷宮下公園前店 宮崎 (エミテラス所沢 宮崎)", "mtg": "2/6 Premium", "store": "SBY", "mins": 62}, {"zoom": "mozoワンダーシティ店 小池 (mozoワンダーシティ店 井戸)", "mtg": "2/6 Premium", "store": "MWC", "mins": 65}, {"zoom": "池袋サンシャインシティ店 ソン", "mtg": "2/6 Premium", "store": "SSC", "mins": 5}, {"zoom": "名古屋栄", "mtg": "2/6 Premium", "store": "NGS", "mins": 63}, {"zoom": "浦添PARCO CITY", "mtg": "2/6 Premium", "store": "UPC", "mins": 62}, {"zoom": "イオンモール岡崎", "mtg": "2/6 Premium", "store": "AOZ", "mins": 23}, {"zoom": "ららぽーと立川立飛", "mtg": "2/6 Premium", "store": "LTT", "mins": 66}, {"zoom": "木更津店", "mtg": "2/6 Premium", "store": "KSD", "mins": 31}, {"zoom": "マークイズ静岡　西山", "mtg": "2/6 Premium", "store": "MIS", "mins": 59}, {"zoom": "セブンパークアリオ柏", "mtg": "2/6 Premium", "store": "SPA", "mins": 60}, {"zoom": "mark is みなとみらい", "mtg": "2/6 Premium", "store": "MMM", "mins": 62}, {"zoom": "エミテラス所沢宮崎", "mtg": "2/6 Premium", "store": "ETT", "mins": 62}, {"zoom": "Yogib岡山_西神", "mtg": "2/6 Premium", "store": "AMO", "mins": 55}, {"zoom": "イオンモール高崎店 新井", "mtg": "2/6 Premium", "store": "ATS", "mins": 60}, {"zoom": "ららぽーと和泉 森園", "mtg": "2/6 接客基礎", "store": "LIZ", "mins": 68}, {"zoom": "アミュプラザおおいた", "mtg": "2/6 接客基礎", "store": "APO", "mins": 68}, {"zoom": "アクアシティお台場", "mtg": "2/6 接客基礎", "store": "ACO", "mins": 63}, {"zoom": "マークイズ静岡 小林", "mtg": "2/6 接客基礎", "store": "MIS", "mins": 69}, {"zoom": "名古屋栄", "mtg": "2/6 接客基礎", "store": "NGS", "mins": 65}, {"zoom": "浦添PARCO CITY", "mtg": "2/6 接客基礎", "store": "UPC", "mins": 65}, {"zoom": "キャナルシティ博多店 高江", "mtg": "2/6 接客基礎", "store": "CCH", "mins": 61}, {"zoom": "木更津店", "mtg": "2/6 接客基礎", "store": "KSD", "mins": 52}, {"zoom": "セブンパークアリオ柏", "mtg": "2/6 接客基礎", "store": "SPA", "mins": 65}, {"zoom": "mark is みなとみらい", "mtg": "2/6 接客基礎", "store": "MMM", "mins": 66}, {"zoom": "なんばパークス", "mtg": "2/6 接客基礎", "store": "NMB", "mins": 67}, {"zoom": "Yogibo_Store-あべのキューズモール", "mtg": "2/6 接客基礎", "store": "AQM", "mins": 61}, {"zoom": "河合巧喜 (木更津店 河合)", "mtg": "2/6 接客基礎", "store": "AYH", "mins": 62}, {"zoom": "アウトレット広島", "mtg": "2/6 接客基礎", "store": "TOH", "mins": 63}, {"zoom": "大同生命miredo 高橋", "mtg": "2/6 接客基礎", "store": "MRD", "mins": 64}, {"zoom": "渋谷宮下公園前店 宮崎", "mtg": "2/6 接客基礎", "store": "SBY", "mins": 21}, {"zoom": "浜田 真梨絵", "mtg": "2/6 接客基礎", "store": "AKK", "mins": 62}, {"zoom": "AM浜松志都呂", "mtg": "2/6 接客基礎", "store": "AHR", "mins": 67}, {"zoom": "池袋サンシャインシティ店 ソン", "mtg": "2/6 接客基礎", "store": "SSC", "mins": 56}, {"zoom": "イオンモール岡崎", "mtg": "2/6 接客基礎", "store": "AOZ", "mins": 63}, {"zoom": "ルクア大阪", "mtg": "2/6 接客基礎", "store": "LCA", "mins": 64}, {"zoom": "AM浜松市野", "mtg": "2/6 接客基礎", "store": "AHI", "mins": 66}, {"zoom": "エミテラス所沢宮崎", "mtg": "2/6 接客基礎", "store": "ETT", "mins": 61}, {"zoom": "イオンモール高崎店 新井", "mtg": "2/6 接客基礎", "store": "ATS", "mins": 66}, {"zoom": "イオンモール和歌山", "mtg": "2/6 接客基礎", "store": "AWY", "mins": 64}, {"zoom": "くずはモール稲垣", "mtg": "2/6 接客基礎", "store": "KZH", "mins": 64}, {"zoom": "AM筑紫野", "mtg": "2/6 接客基礎", "store": "ACK", "mins": 68}, {"zoom": "アミュプラザおおいた", "mtg": "2/6 Cover", "store": "APO", "mins": 62}, {"zoom": "渋谷宮下公園前店 宮崎", "mtg": "2/6 Cover", "store": "SBY", "mins": 59}, {"zoom": "AM川口店", "mtg": "2/6 Cover", "store": "AMK", "mins": 67}, {"zoom": "アクアシティお台場", "mtg": "2/6 Cover", "store": "ACO", "mins": 53}, {"zoom": "イオンモール高崎店 飯塚", "mtg": "2/6 Cover", "store": "ATS", "mins": 66}, {"zoom": "名古屋栄", "mtg": "2/6 Cover", "store": "NGS", "mins": 67}, {"zoom": "池袋サンシャインシティ店 ソン", "mtg": "2/6 Cover", "store": "SSC", "mins": 67}, {"zoom": "広島府中丸橋", "mtg": "2/6 Cover", "store": "AHF", "mins": 64}, {"zoom": "イオンモール岡崎", "mtg": "2/6 Cover", "store": "AOZ", "mins": 64}, {"zoom": "ららぽーと立川立飛", "mtg": "2/6 Cover", "store": "LTT", "mins": 67}, {"zoom": "木更津店", "mtg": "2/6 Cover", "store": "KSD", "mins": 62}, {"zoom": "マークイズ静岡　西山", "mtg": "2/6 Cover", "store": "MIS", "mins": 60}, {"zoom": "りんくうプレミアムアウトレット店 有本 (有本)", "mtg": "2/6 Cover", "store": "ROT", "mins": 63}, {"zoom": "なんばパークス", "mtg": "2/6 Cover", "store": "NMB", "mins": 32}, {"zoom": "MOP岡崎", "mtg": "2/6 Cover", "store": "AOZ", "mins": 56}, {"zoom": "エミテラス所沢宮崎", "mtg": "2/6 Cover", "store": "ETT", "mins": 63}, {"zoom": "イオンモール和歌山", "mtg": "2/6 Cover", "store": "AWY", "mins": 57}, {"zoom": "ららぽーと湘南平塚 立川", "mtg": "2/10 接客基礎", "store": "LSH", "mins": 60}, {"zoom": "村上善章", "mtg": "2/10 接客基礎", "store": "AOZ", "mins": 53}, {"zoom": "イオンモール春日部", "mtg": "2/10 接客基礎", "store": "AHN", "mins": 33}, {"zoom": "アクアシティお台場", "mtg": "2/10 接客基礎", "store": "ACO", "mins": 59}, {"zoom": "名古屋栄", "mtg": "2/10 接客基礎", "store": "NGS", "mins": 62}, {"zoom": "浦添PARCO CITY", "mtg": "2/10 接客基礎", "store": "UPC", "mins": 35}, {"zoom": "酒々井プレミアムアウトレット", "mtg": "2/10 接客基礎", "store": "SIO", "mins": 34}, {"zoom": "イオンモール名古屋茶屋 (小林哲)", "mtg": "2/10 接客基礎", "store": "AMN", "mins": 64}, {"zoom": "本町｜花岡カメラ不調 (本町｜花岡綾音)", "mtg": "2/10 接客基礎", "store": "MHM", "mins": 59}, {"zoom": "浦崎（浦添）", "mtg": "2/10 接客基礎", "store": "UPC", "mins": 61}, {"zoom": "AM浜松志都呂 (小林哲)", "mtg": "2/10 接客基礎", "store": "AHR", "mins": 62}, {"zoom": "羽生イオン新家愛理", "mtg": "2/10 接客基礎", "store": "AHN", "mins": 59}, {"zoom": "アウトレット広島", "mtg": "2/10 接客基礎", "store": "TOH", "mins": 58}, {"zoom": "大同生命miredo 三田 (大同生命miredo 高橋)", "mtg": "2/10 接客基礎", "store": "MRD", "mins": 60}, {"zoom": "新宿茶原", "mtg": "2/10 接客基礎", "store": "SMA", "mins": 42}, {"zoom": "イーアスつくば", "mtg": "2/10 接客基礎", "store": "IAS", "mins": 58}, {"zoom": "ららぽーとエキスポ", "mtg": "2/10 接客基礎", "store": "LEX", "mins": 57}, {"zoom": "広島府中井上", "mtg": "2/10 接客基礎", "store": "AHF", "mins": 59}, {"zoom": "AM浜松市野", "mtg": "2/10 接客基礎", "store": "AHI", "mins": 61}, {"zoom": "MOP岡崎", "mtg": "2/10 接客基礎", "store": "AOZ", "mins": 60}, {"zoom": "エミテラス所沢宮崎", "mtg": "2/10 接客基礎", "store": "ETT", "mins": 59}, {"zoom": "スマーク伊勢崎　小国", "mtg": "2/10 接客基礎", "store": "SIS", "mins": 60}, {"zoom": "Yogib岡山", "mtg": "2/10 接客基礎", "store": "AMO", "mins": 60}, {"zoom": "イオンモール和歌山", "mtg": "2/10 接客基礎", "store": "AWY", "mins": 59}, {"zoom": "Yogiboイオンモール伊丹昆陽店", "mtg": "2/10 接客基礎", "store": "IMI", "mins": 59}, {"zoom": "アウトレット広島", "mtg": "2/10 Cover", "store": "TOH", "mins": 62}, {"zoom": "浦崎（浦添）", "mtg": "2/10 Cover", "store": "UPC", "mins": 61}, {"zoom": "アリオ橋本　石橋", "mtg": "2/10 Cover", "store": "AHM", "mins": 61}, {"zoom": "イオンモールKYOTO　宮田 (宮田)", "mtg": "2/10 Cover", "store": "AKY", "mins": 62}, {"zoom": "アミュプラザ長崎坂田", "mtg": "2/10 Cover", "store": "APN", "mins": 62}, {"zoom": "イーアスつくば", "mtg": "2/10 Cover", "store": "IAS", "mins": 61}, {"zoom": "浦添PARCO CITY", "mtg": "2/10 Cover", "store": "UPC", "mins": 62}, {"zoom": "池袋サンシャインシティ店 ソン", "mtg": "2/10 Cover", "store": "SSC", "mins": 62}, {"zoom": "名古屋栄", "mtg": "2/10 Cover", "store": "NGS", "mins": 58}, {"zoom": "ららぽーと湘南平塚 島上陽大", "mtg": "2/10 Cover", "store": "LSH", "mins": 61}, {"zoom": "yogibo_御堂筋本町", "mtg": "2/10 Cover", "store": "MHM", "mins": 36}, {"zoom": "花岡カメラ不調です (花岡 綾音)", "mtg": "2/10 Cover", "store": "MHM", "mins": 25}, {"zoom": "MARKIS静岡 望月", "mtg": "2/10 Cover", "store": "MIS", "mins": 61}, {"zoom": "イオンモール和歌山", "mtg": "2/10 Cover", "store": "AWY", "mins": 60}, {"zoom": "oodaka yogibo", "mtg": "2/10 Cover", "store": "AOT", "mins": 61}, {"zoom": "AM筑紫野", "mtg": "2/10 Cover", "store": "ACK", "mins": 62}, {"zoom": "イオンモール名古屋茶屋", "mtg": "2/10 Premium", "store": "AMN", "mins": 60}, {"zoom": "アミュプラザくまもと", "mtg": "2/10 Premium", "store": "APK", "mins": 53}, {"zoom": "名古屋栄", "mtg": "2/10 Premium", "store": "NGS", "mins": 63}, {"zoom": "池袋サンシャインシティ店 ソン", "mtg": "2/10 Premium", "store": "SSC", "mins": 63}, {"zoom": "キャナルシティ博多店 (キャナルシティ博多店 高江)", "mtg": "2/10 Premium", "store": "CCH", "mins": 50}, {"zoom": "浦添PARCO CITY", "mtg": "2/10 Premium", "store": "UPC", "mins": 58}, {"zoom": "ららぽーと立川立飛", "mtg": "2/10 Premium", "store": "LTT", "mins": 48}, {"zoom": "広島府中井上", "mtg": "2/10 Premium", "store": "AHF", "mins": 59}, {"zoom": "エミテラス所沢 (エミテラス所沢宮崎)", "mtg": "2/10 Premium", "store": "ETT", "mins": 62}, {"zoom": "MARKIS静岡 望月", "mtg": "2/10 Premium", "store": "MIS", "mins": 60}, {"zoom": "イオンモール和歌山", "mtg": "2/10 Premium", "store": "AWY", "mins": 50}, {"zoom": "くずはモール稲垣", "mtg": "2/10 Premium", "store": "KZH", "mins": 60}, {"zoom": "ららぽーとTOKYO-BAY", "mtg": "2/10 Premium", "store": "LTB", "mins": 50}, {"zoom": "Yogibo イオンモール新潟南", "mtg": "2/12 VIP研修", "store": "NGT", "mins": 63}, {"zoom": "立川 菜弥華", "mtg": "2/12 VIP研修", "store": "LSH", "mins": 65}, {"zoom": "イオンモール鈴鹿　小川博文", "mtg": "2/12 VIP研修", "store": "ASZ", "mins": 64}, {"zoom": "イオンモール札幌発寒 三浦", "mtg": "2/12 VIP研修", "store": "AHS", "mins": 70}, {"zoom": "ららぽーと福岡間部", "mtg": "2/12 VIP研修", "store": "LLF", "mins": 60}, {"zoom": "イオンモール春日部", "mtg": "2/12 VIP研修", "store": "AHN", "mins": 64}, {"zoom": "各務原　織田", "mtg": "2/12 VIP研修", "store": "KGM", "mins": 61}, {"zoom": "イオンモール白山 石原", "mtg": "2/12 VIP研修", "store": "AMH", "mins": 63}, {"zoom": "マークイズ静岡　西山", "mtg": "2/12 VIP研修", "store": "MIS", "mins": 27}, {"zoom": "イオンモール福岡 川﨑", "mtg": "2/12 VIP研修", "store": "AFK", "mins": 64}, {"zoom": "笠水上", "mtg": "2/12 VIP研修", "store": "AKA", "mins": 62}, {"zoom": "イオンモール水戸内原", "mtg": "2/12 VIP研修", "store": "AMU", "mins": 66}, {"zoom": "イオンモール豊川 山本 (イオンモール豊川)", "mtg": "2/12 VIP研修", "store": "ATY", "mins": 28}, {"zoom": "イオンモール名取 今野", "mtg": "2/12 VIP研修", "store": "ANT", "mins": 64}, {"zoom": "キャナルシティ博多店 高江彩香 (キャナルシティ博多店)", "mtg": "2/12 VIP研修", "store": "CCH", "mins": 64}, {"zoom": "AM綾川 岩部", "mtg": "2/12 VIP研修", "store": "AAY", "mins": 64}, {"zoom": "アミュプラザおおいた 小野本 (アミュプラザおおいた)", "mtg": "2/17 VIP研修", "store": "APO", "mins": 66}, {"zoom": "原田大輝 (イオンモール苫小牧)", "mtg": "2/17 VIP研修", "store": "ATK", "mins": 65}, {"zoom": "miredo 岡部 (大同生命miredo 三田)", "mtg": "2/17 VIP研修", "store": "MRD", "mins": 66}, {"zoom": "名古屋栄", "mtg": "3/6 Premium", "store": "NGS", "mins": 65}, {"zoom": "イオンモール橿原", "mtg": "3/6 Premium", "store": "AKH", "mins": 65}, {"zoom": "イオンモール名古屋茶屋", "mtg": "3/6 Premium", "store": "AMN", "mins": 52}, {"zoom": "yogibo長久手 高田", "mtg": "3/6 Premium", "store": "ANK", "mins": 65}, {"zoom": "アクアシティお台場 高野 (アクアシティお台場)", "mtg": "3/6 Premium", "store": "ACO", "mins": 65}, {"zoom": "くずはモール稲垣", "mtg": "3/6 Premium", "store": "KZH", "mins": 65}, {"zoom": "ルクア大阪", "mtg": "3/6 Premium", "store": "LCA", "mins": 65}, {"zoom": "マークイズ静岡　鍋島　小林", "mtg": "3/6 Premium", "store": "MIS", "mins": 64}, {"zoom": "浜田 真梨絵", "mtg": "3/6 Premium", "store": "AKK", "mins": 64}, {"zoom": "イオンモール高崎店 新井", "mtg": "3/6 Premium", "store": "ATS", "mins": 64}, {"zoom": "イオンモール和歌山", "mtg": "3/6 Premium", "store": "AWY", "mins": 64}, {"zoom": "イオンモール札幌発寒 三浦", "mtg": "3/6 Premium", "store": "AHS", "mins": 63}, {"zoom": "天童イオンモールYogibo Store", "mtg": "3/6 Premium", "store": "ATD", "mins": 63}, {"zoom": "イオンモール鹿児島", "mtg": "3/6 Premium", "store": "AKA", "mins": 61}, {"zoom": "渋谷宮下公園前店", "mtg": "3/6 Premium", "store": "SBY", "mins": 58}, {"zoom": "エミテラス所沢", "mtg": "3/6 Cover", "store": "ETT", "mins": 74}, {"zoom": "Yogibo_Store酒々井プレミアムアウトレット", "mtg": "3/6 Cover", "store": "SIO", "mins": 73}, {"zoom": "マークイズ静岡 齊藤", "mtg": "3/6 Cover", "store": "MIS", "mins": 73}, {"zoom": "名古屋栄", "mtg": "3/6 Cover", "store": "NGS", "mins": 73}, {"zoom": "AM川口店", "mtg": "3/6 Cover", "store": "AMK", "mins": 73}, {"zoom": "イオン須坂", "mtg": "3/6 Cover", "store": "ISZ", "mins": 73}, {"zoom": "キャナルシティ博多店 高江彩香", "mtg": "3/6 Cover", "store": "CCH", "mins": 73}, {"zoom": "アクアシティお台場 高野", "mtg": "3/6 Cover", "store": "ACO", "mins": 74}, {"zoom": "アリオ橋本 石川三玲", "mtg": "3/6 Cover", "store": "AHM", "mins": 73}, {"zoom": "AM市野 (堤大和)", "mtg": "3/6 Cover", "store": "AHI", "mins": 73}, {"zoom": "イオンモール和歌山", "mtg": "3/6 Cover", "store": "AWY", "mins": 73}, {"zoom": "Yogiboイオンモール伊丹昆陽店", "mtg": "3/6 Cover", "store": "IMI", "mins": 73}, {"zoom": "インターパークスタジアム店", "mtg": "3/6 Cover", "store": "IPS", "mins": 73}, {"zoom": "イオンモール札幌発寒 三浦", "mtg": "3/6 Cover", "store": "AHS", "mins": 73}, {"zoom": "渋谷宮下公園前店", "mtg": "3/6 Cover", "store": "SBY", "mins": 72}, {"zoom": "天童イオンモールYogibo Store", "mtg": "3/6 Cover", "store": "ATD", "mins": 72}, {"zoom": "御堂筋本町店　岸 (御堂筋本町店)", "mtg": "3/6 Cover", "store": "MHM", "mins": 71}, {"zoom": "MOP岡崎", "mtg": "3/6 Cover", "store": "AOZ", "mins": 32}, {"zoom": "AM川口店 工藤", "mtg": "3/6 Cover", "store": "AMK", "mins": 39}, {"zoom": "AM名古屋茶屋", "mtg": "3/10 接客基礎", "store": "AMN", "mins": 64}, {"zoom": "Yogibo_Storeラソラ札幌PC", "mtg": "3/10 接客基礎", "store": "RSS", "mins": 64}, {"zoom": "二子玉川ライズ店", "mtg": "3/10 接客基礎", "store": "FTR", "mins": 64}, {"zoom": "AM川口店", "mtg": "3/10 接客基礎", "store": "AMK", "mins": 64}, {"zoom": "浦崎（浦添）", "mtg": "3/10 接客基礎", "store": "UPC", "mins": 64}, {"zoom": "イオンモール水戸内原店　高橋直輝", "mtg": "3/10 接客基礎", "store": "AMU", "mins": 64}, {"zoom": "くずはモール稲垣", "mtg": "3/10 接客基礎", "store": "KZH", "mins": 64}, {"zoom": "イオンモール鹿児島", "mtg": "3/10 接客基礎", "store": "AKA", "mins": 64}, {"zoom": "AM浜松志都呂", "mtg": "3/10 接客基礎", "store": "AHR", "mins": 64}, {"zoom": "oodaka yogibo", "mtg": "3/10 接客基礎", "store": "AOT", "mins": 64}, {"zoom": "イオンモール高崎店", "mtg": "3/10 接客基礎", "store": "ATS", "mins": 64}, {"zoom": "御堂筋本町店　岸", "mtg": "3/10 接客基礎", "store": "MHM", "mins": 64}, {"zoom": "アリオ橋本 石川三玲", "mtg": "3/10 接客基礎", "store": "AHM", "mins": 64}, {"zoom": "イオンモール鈴鹿　小川博文", "mtg": "3/10 接客基礎", "store": "ASZ", "mins": 64}, {"zoom": "イオンモール和歌山", "mtg": "3/10 接客基礎", "store": "AWY", "mins": 64}, {"zoom": "キャナルシティ博多店 佐護 (キャナルシティ博多店 高江彩香)", "mtg": "3/10 接客基礎", "store": "CCH", "mins": 64}, {"zoom": "名古屋栄", "mtg": "3/10 接客基礎", "store": "NGS", "mins": 64}, {"zoom": "イオンモール広島府中店", "mtg": "3/10 接客基礎", "store": "AHF", "mins": 64}, {"zoom": "イオンモール札幌発寒 (イオンモール札幌発寒 三浦)", "mtg": "3/10 接客基礎", "store": "AHS", "mins": 63}, {"zoom": "Yogibo_Store酒々井プレミアムアウトレット", "mtg": "3/10 接客基礎", "store": "SIO", "mins": 63}, {"zoom": "ならファミリー店", "mtg": "3/10 接客基礎", "store": "NFM", "mins": 63}, {"zoom": "浦添PARCO", "mtg": "3/10 接客基礎", "store": "UPC", "mins": 27}, {"zoom": "ららぽーと門真店", "mtg": "3/10 接客基礎", "store": "LPK", "mins": 50}, {"zoom": "神戸ハーバーランドumie　上村花音 (神戸umie)", "mtg": "3/10 接客基礎", "store": "KHU", "mins": 62}, {"zoom": "ららぽーと沼津 澤野", "mtg": "3/10 接客基礎", "store": "LNZ", "mins": 62}, {"zoom": "ららぽーと湘南平塚仮屋幸大", "mtg": "3/10 接客基礎", "store": "LSH", "mins": 58}, {"zoom": "酒々井プレミアムアウトレット　平川 (酒々井プレミアムアウトレット)", "mtg": "3/10 接客基礎", "store": "SIO", "mins": 32}, {"zoom": "渋谷宮下公園前店", "mtg": "3/10 接客基礎", "store": "SBY", "mins": 46}, {"zoom": "オリナス錦糸町店", "mtg": "3/10 接客基礎", "store": "OLK", "mins": 14}, {"zoom": "浦添PARCO CITY", "mtg": "3/10 接客基礎", "store": "UPC", "mins": 37}, {"zoom": "ならファタブレット", "mtg": "3/10 接客基礎", "store": "NFM", "mins": 6}, {"zoom": "髙江彩香", "mtg": "3/10 Premium", "store": "CCH", "mins": 23}, {"zoom": "Yogibo_イオンモール京都桂川 河辺 (Yogibo_イオンモール京都桂川)", "mtg": "3/10 Premium", "store": "AKK", "mins": 6}, {"zoom": "AM名古屋茶屋 近間 (AM名古屋茶屋)", "mtg": "3/10 Premium", "store": "AMN", "mins": 74}, {"zoom": "AM川口店 目黒 (AM川口店)", "mtg": "3/10 Premium", "store": "AMK", "mins": 67}, {"zoom": "イオンモール鹿児島　瀬戸口 (イオンモール鹿児島)", "mtg": "3/10 Premium", "store": "AKA", "mins": 65}, {"zoom": "ならファミリー店 居木 (ならファミリー店)", "mtg": "3/10 Premium", "store": "NFM", "mins": 66}, {"zoom": "キャナルシティ博多店 佐護", "mtg": "3/10 Premium", "store": "CCH", "mins": 42}, {"zoom": "浦添PARCO CITY 内間 (浦添PARCO CITY)", "mtg": "3/10 Premium", "store": "UPC", "mins": 66}, {"zoom": "Yogibo_イオンモール京都桂川 河辺", "mtg": "3/10 Premium", "store": "AKK", "mins": 63}, {"zoom": "ららぽーと湘南平塚 山根蓮佳佐々木優芽", "mtg": "3/10 Premium", "store": "LSH", "mins": 56}, {"zoom": "イオンモール須坂 三井 (イオンモール須坂)", "mtg": "3/10 Premium", "store": "ISZ", "mins": 70}, {"zoom": "AM水戸内原　根本 (イオンモール水戸内原)", "mtg": "3/10 Premium", "store": "AMU", "mins": 67}, {"zoom": "イオンモール高崎店 平井 (イオンモール高崎店)", "mtg": "3/10 Premium", "store": "ATS", "mins": 70}, {"zoom": "イオンモール和歌山 前田 (イオンモール和歌山)", "mtg": "3/10 Premium", "store": "AWY", "mins": 67}, {"zoom": "マークイズ静岡 殿岡", "mtg": "3/10 Premium", "store": "MIS", "mins": 66}, {"zoom": "酒々井プレミアムアウトレット　平川 (酒々井プレミアムアウトレット　平川)", "mtg": "3/10 Premium", "store": "SIO", "mins": 75}, {"zoom": "二子玉川ライズ店 岩間七海 (二子玉川ライズ店)", "mtg": "3/10 Premium", "store": "FTR", "mins": 72}, {"zoom": "AM浜松市野　堤大和 (堤大和)", "mtg": "3/10 Premium", "store": "AHI", "mins": 70}];
-const SM       = {"AQM": {"name": "あべのキューズモール", "manager": "中村 香蓮", "area": "関西", "am": "才賀", "ops": "直営"}, "MHM": {"name": "御堂筋本町", "manager": "岸 咲良", "area": "関西", "am": "才賀", "ops": "直営"}, "LSM": {"name": "ららぽーと新三郷", "manager": "深沢 英彰", "area": "関東", "am": "旭", "ops": "直営"}, "LTB": {"name": "ららぽーとTOKYO-BAY", "manager": "宮狭 ゆかり", "area": "関東", "am": "花渕", "ops": "直営"}, "KZH": {"name": "くずはモール", "manager": "稲垣 佐希子", "area": "関西", "am": "渡邊", "ops": "代行"}, "CCC": {"name": "コクーンシティ", "manager": "恒松 嵩人", "area": "関東", "am": "花渕", "ops": "直営"}, "NMG": {"name": "西宮ガーデンズ", "manager": "佐藤 弘章", "area": "関西", "am": "荒金", "ops": "直営"}, "SMA": {"name": "新宿マルイ アネックス", "manager": "茶原 駿兵", "area": "関東", "am": "花渕", "ops": "直営"}, "LSH": {"name": "ららぽーと湘南平塚", "manager": "立川 菜弥華", "area": "関東", "am": "佐伯", "ops": "代行"}, "AMN": {"name": "イオンモール名古屋茶屋", "manager": "村松 和宏", "area": "東海", "am": "渡邊", "ops": "代行"}, "AMO": {"name": "イオンモール岡山", "manager": "藤田 ひな", "area": "中国", "am": "西村", "ops": "代行"}, "LEX": {"name": "ららぽーとEXPOCITY", "manager": "山本 謙也", "area": "関西", "am": "荒金", "ops": "直営"}, "NFM": {"name": "ならファミリー", "manager": "小南 穂乃果", "area": "関西", "am": "渡邊", "ops": "代行"}, "IPS": {"name": "インターパークスタジアム", "manager": "中島 健登", "area": "関東", "am": "旭", "ops": "直営"}, "AOT": {"name": "イオンモール大高", "manager": "柴田 誠也", "area": "東海", "am": "内田", "ops": "直営"}, "AFK": {"name": "イオンモール福岡", "manager": "古賀 宕子", "area": "九州", "am": "西村", "ops": "代行"}, "YCY": {"name": "八千代", "manager": "深沢 英彰", "area": "関東", "am": "旭", "ops": "直営"}, "LTT": {"name": "ららぽーと立川立飛", "manager": "村本 悠菜", "area": "関東", "am": "花渕", "ops": "直営"}, "AHS": {"name": "イオンモール札幌発寒", "manager": "髙橋 采佳", "area": "北海道", "am": "旭", "ops": "代行"}, "TOH": {"name": "THE OUTLETS HIROSHIMA", "manager": "田中 希望", "area": "中国", "am": "西村", "ops": "代行"}, "CCH": {"name": "キャナルシティ博多", "manager": "高江 彩香", "area": "九州", "am": "西村", "ops": "代行"}, "LIZ": {"name": "ららぽーと和泉", "manager": "高橋 太一", "area": "関西", "am": "才賀", "ops": "直営"}, "AMS": {"name": "イオンモール幕張新都心", "manager": "君嶋 香織", "area": "関東", "am": "花渕", "ops": "直営"}, "LFM": {"name": "ららぽーと富士見", "manager": "森下 利昭", "area": "関東", "am": "旭", "ops": "直営"}, "MMM": {"name": "MARK IS みなとみらい", "manager": "上野 和奏", "area": "関東", "am": "内田", "ops": "直営"}, "LEB": {"name": "ららぽーと海老名", "manager": "石田 江理子", "area": "関東", "am": "内田", "ops": "直営"}, "AHN": {"name": "イオンモール羽生", "manager": "斉藤 直美", "area": "関東", "am": "佐伯", "ops": "代行"}, "LMA": {"name": "ららぽーと名古屋みなとアクルス", "manager": "二部 瑞基", "area": "東海", "am": "内田", "ops": "直営"}, "ANK": {"name": "イオンモール長久手", "manager": "福尾 誠人", "area": "東海", "am": "旭", "ops": "代行"}, "ACK": {"name": "イオンモール筑紫野", "manager": "宮原 満男", "area": "九州", "am": "西村", "ops": "代行"}, "AMT": {"name": "イオンモール徳島", "manager": "大石 若奈", "area": "四国", "am": "渡邊", "ops": "代行"}, "MLR": {"name": "モレラ岐阜", "manager": "渡邉 健人", "area": "東海", "am": "渡邊", "ops": "代行"}, "IAS": {"name": "イーアスつくば", "manager": "余宮 光大", "area": "関東", "am": "佐伯", "ops": "代行"}, "AKY": {"name": "イオンモールKYOTO", "manager": "宮田 郁弥", "area": "関西", "am": "西村", "ops": "代行"}, "ANT": {"name": "イオンモール名取", "manager": "佐々木 夕珠", "area": "東北", "am": "旭", "ops": "代行"}, "ATK": {"name": "イオンモール苫小牧", "manager": "原田 大輝", "area": "北海道", "am": "西村", "ops": "代行"}, "AHF": {"name": "イオンモール広島府中", "manager": "井上 香織", "area": "中国", "am": "西村", "ops": "代行"}, "OLK": {"name": "オリナス錦糸町", "manager": "茶原 駿兵", "area": "関東", "am": "花渕", "ops": "直営"}, "KKK": {"name": "キラリナ京王吉祥寺", "manager": "田中 月", "area": "関東", "am": "佐伯", "ops": "代行"}, "LNZ": {"name": "ららぽーと沼津", "manager": "日下 敦弥", "area": "東海", "am": "佐伯", "ops": "代行"}, "NMB": {"name": "なんばパークス", "manager": "岡内 大紀", "area": "関西", "am": "才賀", "ops": "直営"}, "TRY": {"name": "トレッサ横浜", "manager": "髙橋 真琴", "area": "関東", "am": "内田", "ops": "直営"}, "FTR": {"name": "二子玉川ライズ", "manager": "白畑 圭一", "area": "関東", "am": "花渕", "ops": "直営"}, "AWY": {"name": "イオンモール和歌山", "manager": "谷口 ことみ", "area": "関西", "am": "西村", "ops": "代行"}, "MRD": {"name": "大同生命札幌ビル miredo", "manager": "岡部 聖耶", "area": "北海道", "am": "旭", "ops": "代行"}, "AAG": {"name": "有明ガーデン", "manager": "岩井 梓", "area": "関東", "am": "佐伯", "ops": "代行"}, "LAT": {"name": "ららぽーと愛知東郷", "manager": "佐藤 奨時", "area": "東海", "am": "内田", "ops": "直営"}, "KHU": {"name": "神戸ハーバーランドumie", "manager": "山田 剛史", "area": "関西", "am": "荒金", "ops": "直営"}, "LCA": {"name": "ルクア大阪", "manager": "清村 麻友", "area": "関西", "am": "荒金", "ops": "直営"}, "KST": {"name": "イオンモール草津", "manager": "大野 拓美", "area": "関西", "am": "荒金", "ops": "直営"}, "MIS": {"name": "MARK IS 静岡", "manager": "西山 瑞起", "area": "東海", "am": "渡邊", "ops": "代行"}, "LPY": {"name": "ららぽーと横浜", "manager": "高橋 真琴", "area": "関東", "am": "内田", "ops": "直営"}, "APK": {"name": "アミュプラザくまもと", "manager": "中川 希実子", "area": "九州", "am": "西村", "ops": "代行"}, "UPC": {"name": "浦添 PARCO CITY", "manager": "浦崎 広作", "area": "沖縄", "am": "渡邊", "ops": "代行"}, "AMH": {"name": "イオンモール白山", "manager": "石原 玲菜", "area": "北陸・甲信越", "am": "渡邊", "ops": "代行"}, "ASZ": {"name": "イオンモール鈴鹿", "manager": "小川 博文", "area": "東海", "am": "旭", "ops": "代行"}, "ALM": {"name": "イオンレイクタウンmori", "manager": "山内 真理恵", "area": "関東", "am": "旭", "ops": "直営"}, "APO": {"name": "アミュプラザおおいた", "manager": "小野本 翔", "area": "九州", "am": "西村", "ops": "代行"}, "AYH": {"name": "イオンモール八幡東", "manager": "河合 巧喜", "area": "九州", "am": "才賀", "ops": "直営"}, "AOZ": {"name": "イオンモール岡崎", "manager": "村上 善章", "area": "東海", "am": "内田", "ops": "直営"}, "NGS": {"name": "名古屋栄", "manager": "中林 真希", "area": "東海", "am": "内田", "ops": "直営"}, "SSC": {"name": "池袋サンシャインシティ", "manager": "中村 譲之介", "area": "関東", "am": "花渕", "ops": "直営"}, "AHR": {"name": "イオンモール浜松志都呂", "manager": "村松 和宏", "area": "東海", "am": "渡邊", "ops": "FC"}, "AHI": {"name": "イオンモール浜松市野", "manager": "堤 大和", "area": "東海", "am": "渡邊", "ops": "代行"}, "AMZ": {"name": "イオンモール宮崎", "manager": "佐藤 悠磨", "area": "九州", "am": "佐伯", "ops": "代行"}, "MWC": {"name": "mozoワンダーシティ", "manager": "渡邉 健人", "area": "東海", "am": "渡邊", "ops": "代行"}, "AKA": {"name": "イオンモール鹿児島", "manager": "笠水上 将己", "area": "九州", "am": "西村", "ops": "代行"}, "OSP": {"name": "おのだサンパーク", "manager": "宮﨑 晶", "area": "中国", "am": "西村", "ops": "代行"}, "AKK": {"name": "イオンモール京都桂川", "manager": "浜田 真梨絵", "area": "関西", "am": "才賀", "ops": "直営"}, "MIF": {"name": "MARK IS 福岡ももち", "manager": "安藤 孝志", "area": "九州", "am": "西村", "ops": "代行"}, "AHO": {"name": "イオンモール姫路大津", "manager": "島谷 隆三", "area": "関西", "am": "荒金", "ops": "直営"}, "ATD": {"name": "イオンモール天童", "manager": "渡辺 正昇", "area": "東北", "am": "旭", "ops": "代行"}, "SBY": {"name": "渋谷宮下公園前", "manager": "岩田 正平", "area": "関東", "am": "旭", "ops": "直営"}, "SIS": {"name": "スマーク伊勢崎", "manager": "小国 楓恋", "area": "関東", "am": "佐伯", "ops": "代行"}, "AKR": {"name": "イオンモール倉敷", "manager": "一ノ木 祥太", "area": "中国", "am": "西村", "ops": "代行"}, "ROT": {"name": "りんくうプレミアム・アウトレット", "manager": "高橋 太一", "area": "関西", "am": "才賀", "ops": "直営"}, "LLS": {"name": "ららぽーと堺", "manager": "中村 香蓮", "area": "関西", "am": "才賀", "ops": "直営"}, "AMU": {"name": "イオンモール水戸内原", "manager": "根本 蘭", "area": "関東", "am": "渡邊", "ops": "代行"}, "AHM": {"name": "アリオ橋本", "manager": "岩下 麻美", "area": "関東", "am": "佐伯", "ops": "代行"}, "ACO": {"name": "アクアシティお台場", "manager": "岩田 正平", "area": "関東", "am": "旭", "ops": "直営"}, "ATY": {"name": "イオンモール豊川", "manager": "緒方 隆哉", "area": "東海", "am": "旭", "ops": "代行"}, "LPK": {"name": "ららぽーと門真", "manager": "白井 蓮菜", "area": "関西", "am": "荒金", "ops": "直営"}, "ATS": {"name": "イオンモール高崎", "manager": "新井 祐貴", "area": "関東", "am": "佐伯", "ops": "代行"}, "AKH": {"name": "イオンモール橿原", "manager": "吉田 雅", "area": "関西", "am": "才賀", "ops": "直営"}, "LGN": {"name": "ララガーデン長町", "manager": "田頭 智也", "area": "東北", "am": "旭", "ops": "代行"}, "LLF": {"name": "ららぽーと福岡", "manager": "間部 隆嗣", "area": "九州", "am": "西村", "ops": "代行"}, "AAY": {"name": "イオンモール綾川", "manager": "岩部 悠利", "area": "四国", "am": "渡邊", "ops": "代行"}, "RSS": {"name": "ラソラ札幌", "manager": "中原 章吾", "area": "北海道", "am": "渡邊", "ops": "代行"}, "KGM": {"name": "イオンモール各務原インター", "manager": "織田 直子", "area": "東海", "am": "旭", "ops": "代行"}, "AMA": {"name": "イオンモール旭川西", "manager": "田ノ上 雄紀", "area": "北海道", "am": "旭", "ops": "代行"}, "SPA": {"name": "セブンパークアリオ柏", "manager": "佐藤 敦司", "area": "関東", "am": "佐伯", "ops": "代行"}, "KSD": {"name": "木更津", "manager": "柿内 悠太", "area": "関東", "am": "内田", "ops": "直営"}, "APN": {"name": "アミュプラザ長崎", "manager": "坂田 恭子", "area": "九州", "am": "西村", "ops": "代行"}, "AKT": {"name": "イオンモール熊本", "manager": "宮尾 姫星", "area": "九州", "am": "西村", "ops": "代行"}, "NGT": {"name": "イオンモール新潟亀田インター", "manager": "阿部 太尊", "area": "北陸・甲信越", "am": "旭", "ops": "代行"}, "ETT": {"name": "エミテラス所沢", "manager": "中村 譲之介", "area": "関東", "am": "花渕", "ops": "直営"}, "AMK": {"name": "イオンモール川口", "manager": "", "area": "関東", "am": "", "ops": ""}, "SIO": {"name": "酒々井PREMIUM OUTLET", "manager": "", "area": "関東", "am": "", "ops": ""}, "ISZ": {"name": "イオンモール須坂", "manager": "", "area": "北陸・甲信越", "am": "", "ops": ""}, "IMI": {"name": "イオンモール伊丹昆陽", "manager": "", "area": "関西", "am": "", "ops": ""}};
+const STORES   = [["AQM", "あべのキューズモール", "中村 香蓮", "関西", "才賀", "直営"], ["MHM", "御堂筋本町", "岸 咲良", "関西", "才賀", "直営"], ["LSM", "ららぽーと新三郷", "深沢 英彰", "関東", "旭", "直営"], ["LTB", "ららぽーとTOKYO-BAY", "宮狭 ゆかり", "関東", "花渕", "直営"], ["KZH", "くずはモール", "稲垣 佐希子", "関西", "渡邊", "代行"], ["CCC", "コクーンシティ", "恒松 嵩人", "関東", "花渕", "直営"], ["NMG", "西宮ガーデンズ", "佐藤 弘章", "関西", "荒金", "直営"], ["SMA", "新宿マルイ アネックス", "茶原 駿兵", "関東", "花渕", "直営"], ["LSH", "ららぽーと湘南平塚", "立川 菜弥華", "関東", "佐伯", "代行"], ["AMN", "イオンモール名古屋茶屋", "村松 和宏", "東海", "渡邊", "代行"], ["AMO", "イオンモール岡山", "藤田 ひな", "中国", "西村", "代行"], ["LEX", "ららぽーとEXPOCITY", "山本 謙也", "関西", "荒金", "直営"], ["NFM", "ならファミリー", "小南 穂乃果", "関西", "渡邊", "代行"], ["IPS", "インターパークスタジアム", "中島 健登", "関東", "旭", "直営"], ["AOT", "イオンモール大高", "柴田 誠也", "東海", "内田", "直営"], ["AFK", "イオンモール福岡", "古賀 宕子", "九州", "西村", "代行"], ["YCY", "八千代", "深沢 英彰", "関東", "旭", "直営"], ["LTT", "ららぽーと立川立飛", "村本 悠菜", "関東", "花渕", "直営"], ["AHS", "イオンモール札幌発寒", "髙橋 采佳", "北海道", "旭", "代行"], ["TOH", "THE OUTLETS HIROSHIMA", "田中 希望", "中国", "西村", "代行"], ["CCH", "キャナルシティ博多", "高江 彩香", "九州", "西村", "代行"], ["LIZ", "ららぽーと和泉", "高橋 太一", "関西", "才賀", "直営"], ["AMS", "イオンモール幕張新都心", "君嶋 香織", "関東", "花渕", "直営"], ["LFM", "ららぽーと富士見", "森下 利昭", "関東", "旭", "直営"], ["MMM", "MARK IS みなとみらい", "上野 和奏", "関東", "内田", "直営"], ["LEB", "ららぽーと海老名", "石田 江理子", "関東", "内田", "直営"], ["AHN", "イオンモール羽生", "斉藤 直美", "関東", "佐伯", "代行"], ["LMA", "ららぽーと名古屋みなとアクルス", "二部 瑞基", "東海", "内田", "直営"], ["ANK", "イオンモール長久手", "福尾 誠人", "東海", "旭", "代行"], ["ACK", "イオンモール筑紫野", "宮原 満男", "九州", "西村", "代行"], ["AMT", "イオンモール徳島", "大石 若奈", "四国", "渡邊", "代行"], ["MLR", "モレラ岐阜", "渡邉 健人", "東海", "渡邊", "代行"], ["IAS", "イーアスつくば", "余宮 光大", "関東", "佐伯", "代行"], ["AKY", "イオンモールKYOTO", "宮田 郁弥", "関西", "西村", "代行"], ["ANT", "イオンモール名取", "佐々木 夕珠", "東北", "旭", "代行"], ["ATK", "イオンモール苫小牧", "原田 大輝", "北海道", "西村", "代行"], ["AHF", "イオンモール広島府中", "井上 香織", "中国", "西村", "代行"], ["OLK", "オリナス錦糸町", "茶原 駿兵", "関東", "花渕", "直営"], ["KKK", "キラリナ京王吉祥寺", "田中 月", "関東", "佐伯", "代行"], ["LNZ", "ららぽーと沼津", "日下 敦弥", "東海", "佐伯", "代行"], ["NMB", "なんばパークス", "岡内 大紀", "関西", "才賀", "直営"], ["TRY", "トレッサ横浜", "髙橋 真琴", "関東", "内田", "直営"], ["FTR", "二子玉川ライズ", "白畑 圭一", "関東", "花渕", "直営"], ["AWY", "イオンモール和歌山", "谷口 ことみ", "関西", "西村", "代行"], ["MRD", "大同生命札幌ビル miredo", "岡部 聖耶", "北海道", "旭", "代行"], ["AAG", "有明ガーデン", "岩井 梓", "関東", "佐伯", "代行"], ["LAT", "ららぽーと愛知東郷", "佐藤 奨時", "東海", "内田", "直営"], ["KHU", "神戸ハーバーランドumie", "山田 剛史", "関西", "荒金", "直営"], ["LCA", "ルクア大阪", "清村 麻友", "関西", "荒金", "直営"], ["KST", "イオンモール草津", "大野 拓美", "関西", "荒金", "直営"], ["MIS", "MARK IS 静岡", "西山 瑞起", "東海", "渡邊", "代行"], ["LPY", "ららぽーと横浜", "高橋 真琴", "関東", "内田", "直営"], ["APK", "アミュプラザくまもと", "中川 希実子", "九州", "西村", "代行"], ["UPC", "浦添 PARCO CITY", "浦崎 広作", "沖縄", "渡邊", "代行"], ["AMH", "イオンモール白山", "石原 玲菜", "北陸・甲信越", "渡邊", "代行"], ["ASZ", "イオンモール鈴鹿", "小川 博文", "東海", "旭", "代行"], ["ALM", "イオンレイクタウンmori", "山内 真理恵", "関東", "旭", "直営"], ["APO", "アミュプラザおおいた", "小野本 翔", "九州", "西村", "代行"], ["AYH", "イオンモール八幡東", "河合 巧喜", "九州", "才賀", "直営"], ["AOZ", "イオンモール岡崎", "村上 善章", "東海", "内田", "直営"], ["NGS", "名古屋栄", "中林 真希", "東海", "内田", "直営"], ["SSC", "池袋サンシャインシティ", "中村 譲之介", "関東", "花渕", "直営"], ["AHR", "イオンモール浜松志都呂", "村松 和宏", "東海", "渡邊", "FC"], ["AHI", "イオンモール浜松市野", "堤 大和", "東海", "渡邊", "代行"], ["AMZ", "イオンモール宮崎", "佐藤 悠磨", "九州", "佐伯", "代行"], ["MWC", "mozoワンダーシティ", "渡邉 健人", "東海", "渡邊", "代行"], ["AKA", "イオンモール鹿児島", "笠水上 将己", "九州", "西村", "代行"], ["OSP", "おのだサンパーク", "宮﨑 晶", "中国", "西村", "代行"], ["AKK", "イオンモール京都桂川", "浜田 真梨絵", "関西", "才賀", "直営"], ["MIF", "MARK IS 福岡ももち", "安藤 孝志", "九州", "西村", "代行"], ["AHO", "イオンモール姫路大津", "島谷 隆三", "関西", "荒金", "直営"], ["ATD", "イオンモール天童", "渡辺 正昇", "東北", "旭", "代行"], ["SBY", "渋谷宮下公園前", "岩田 正平", "関東", "旭", "直営"], ["SIS", "スマーク伊勢崎", "小国 楓恋", "関東", "佐伯", "代行"], ["AKR", "イオンモール倉敷", "一ノ木 祥太", "中国", "西村", "代行"], ["ROT", "りんくうプレミアム・アウトレット", "高橋 太一", "関西", "才賀", "直営"], ["LLS", "ららぽーと堺", "中村 香蓮", "関西", "才賀", "直営"], ["AMU", "イオンモール水戸内原", "根本 蘭", "関東", "渡邊", "代行"], ["AHM", "アリオ橋本", "岩下 麻美", "関東", "佐伯", "代行"], ["ACO", "アクアシティお台場", "岩田 正平", "関東", "旭", "直営"], ["ATY", "イオンモール豊川", "緒方 隆哉", "東海", "旭", "代行"], ["LPK", "ららぽーと門真", "白井 蓮菜", "関西", "荒金", "直営"], ["ATS", "イオンモール高崎", "新井 祐貴", "関東", "佐伯", "代行"], ["AKH", "イオンモール橿原", "吉田 雅", "関西", "才賀", "直営"], ["LGN", "ララガーデン長町", "田頭 智也", "東北", "旭", "代行"], ["LLF", "ららぽーと福岡", "間部 隆嗣", "九州", "西村", "代行"], ["AAY", "イオンモール綾川", "岩部 悠利", "四国", "渡邊", "代行"], ["RSS", "ラソラ札幌", "中原 章吾", "北海道", "渡邊", "代行"], ["KGM", "イオンモール各務原インター", "織田 直子", "東海", "旭", "代行"], ["AMA", "イオンモール旭川西", "田ノ上 雄紀", "北海道", "旭", "代行"], ["SPA", "セブンパークアリオ柏", "佐藤 敦司", "関東", "佐伯", "代行"], ["KSD", "木更津", "柿内 悠太", "関東", "内田", "直営"], ["APN", "アミュプラザ長崎", "坂田 恭子", "九州", "西村", "代行"], ["AKT", "イオンモール熊本", "宮尾 姫星", "九州", "西村", "代行"], ["NGT", "イオンモール新潟亀田インター", "阿部 太尊", "北陸・甲信越", "旭", "代行"], ["ETT", "エミテラス所沢", "中村 譲之介", "関東", "花渕", "直営"], ["AMK", "イオンモール川口", "", "関東", "", ""], ["SIO", "酒々井PREMIUM OUTLET", "", "関東", "", ""], ["ISZ", "イオンモール須坂", "", "北陸・甲信越", "", ""], ["IMI", "イオンモール伊丹昆陽", "", "関西", "", ""]];
 const MEETINGS = ["2/3 ３笑講座", "2/4 ３笑講座", "2/6 Premium", "2/6 接客基礎", "2/6 Cover", "2/10 接客基礎", "2/10 Cover", "2/10 Premium", "2/12 VIP研修", "2/17 VIP研修", "3/6 Premium", "3/6 Cover", "3/10 接客基礎", "3/10 Premium"];
+const RESULT   = {"AQM": {"2/6 Premium": null, "2/6 接客基礎": 61, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "MHM": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": 59, "2/10 Cover": 36, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": 71, "3/10 接客基礎": 64, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "LSM": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "LTB": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": 50, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "KZH": {"2/6 Premium": null, "2/6 接客基礎": 64, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": 60, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": 65, "3/6 Cover": null, "3/10 接客基礎": 64, "2/3 ３笑講座": null, "2/4 ３笑講座": 54, "3/10 Premium": null}, "CCC": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "NMG": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "SMA": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": 42, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "LSH": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": 60, "2/10 Cover": 61, "2/10 Premium": null, "2/12 VIP研修": 65, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": 58, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": 56}, "AMN": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": 64, "2/10 Cover": null, "2/10 Premium": 60, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": 52, "3/6 Cover": null, "3/10 接客基礎": 64, "2/3 ３笑講座": null, "2/4 ３笑講座": 59, "3/10 Premium": 74}, "AMO": {"2/6 Premium": 55, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": 60, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "LEX": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": 57, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "NFM": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": 63, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": 66}, "IPS": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": 73, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "AOT": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": 61, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": 64, "2/3 ３笑講座": 55, "2/4 ３笑講座": null, "3/10 Premium": null}, "AFK": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": 64, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "YCY": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "LTT": {"2/6 Premium": 66, "2/6 接客基礎": null, "2/6 Cover": 67, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": 48, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "AHS": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": 70, "2/17 VIP研修": null, "3/6 Premium": 63, "3/6 Cover": 73, "3/10 接客基礎": 63, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "TOH": {"2/6 Premium": null, "2/6 接客基礎": 63, "2/6 Cover": null, "2/10 接客基礎": 58, "2/10 Cover": 62, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": 57, "2/4 ３笑講座": null, "3/10 Premium": null}, "CCH": {"2/6 Premium": null, "2/6 接客基礎": 61, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": 50, "2/12 VIP研修": 64, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": 73, "3/10 接客基礎": 64, "2/3 ３笑講座": 39, "2/4 ３笑講座": 54, "3/10 Premium": 42}, "LIZ": {"2/6 Premium": null, "2/6 接客基礎": 68, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "AMS": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "LFM": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "MMM": {"2/6 Premium": 62, "2/6 接客基礎": 66, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": 46, "2/4 ３笑講座": 56, "3/10 Premium": null}, "LEB": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "AHN": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": 59, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": 64, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "LMA": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "ANK": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": 65, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "ACK": {"2/6 Premium": null, "2/6 接客基礎": 68, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": 62, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "AMT": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "MLR": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "IAS": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": 58, "2/10 Cover": 61, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": 56, "2/4 ３笑講座": null, "3/10 Premium": null}, "AKY": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": 62, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "ANT": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": 64, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "ATK": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": 65, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "AHF": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": 64, "2/10 接客基礎": 59, "2/10 Cover": null, "2/10 Premium": 59, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": 64, "2/3 ３笑講座": null, "2/4 ３笑講座": 51, "3/10 Premium": null}, "OLK": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": 14, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "KKK": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "LNZ": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": 62, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "NMB": {"2/6 Premium": null, "2/6 接客基礎": 67, "2/6 Cover": 32, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "TRY": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "FTR": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": 64, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": 72}, "AWY": {"2/6 Premium": 63, "2/6 接客基礎": 64, "2/6 Cover": 57, "2/10 接客基礎": 59, "2/10 Cover": 60, "2/10 Premium": 50, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": 64, "3/6 Cover": 73, "3/10 接客基礎": 64, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": 67}, "MRD": {"2/6 Premium": null, "2/6 接客基礎": 64, "2/6 Cover": null, "2/10 接客基礎": 60, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": 66, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "AAG": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "LAT": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "KHU": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": 62, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "LCA": {"2/6 Premium": null, "2/6 接客基礎": 64, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": 65, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "KST": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "MIS": {"2/6 Premium": 59, "2/6 接客基礎": 69, "2/6 Cover": 60, "2/10 接客基礎": null, "2/10 Cover": 61, "2/10 Premium": 60, "2/12 VIP研修": 27, "2/17 VIP研修": null, "3/6 Premium": 64, "3/6 Cover": 73, "3/10 接客基礎": null, "2/3 ３笑講座": 58, "2/4 ３笑講座": 49, "3/10 Premium": 66}, "LPY": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "APK": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": 53, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "UPC": {"2/6 Premium": 62, "2/6 接客基礎": 65, "2/6 Cover": null, "2/10 接客基礎": 61, "2/10 Cover": 62, "2/10 Premium": 58, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": 64, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": 66}, "AMH": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": 63, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "ASZ": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": 64, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": 64, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "ALM": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "APO": {"2/6 Premium": null, "2/6 接客基礎": 68, "2/6 Cover": 62, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": 66, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": 58, "3/10 Premium": null}, "AYH": {"2/6 Premium": null, "2/6 接客基礎": 62, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "AOZ": {"2/6 Premium": 23, "2/6 接客基礎": 63, "2/6 Cover": 64, "2/10 接客基礎": 60, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": 32, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "NGS": {"2/6 Premium": 63, "2/6 接客基礎": 65, "2/6 Cover": 67, "2/10 接客基礎": 62, "2/10 Cover": 58, "2/10 Premium": 63, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": 65, "3/6 Cover": 73, "3/10 接客基礎": 64, "2/3 ３笑講座": null, "2/4 ３笑講座": 61, "3/10 Premium": null}, "SSC": {"2/6 Premium": 5, "2/6 接客基礎": 56, "2/6 Cover": 67, "2/10 接客基礎": null, "2/10 Cover": 62, "2/10 Premium": 63, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": 65, "2/4 ３笑講座": 55, "3/10 Premium": null}, "AHR": {"2/6 Premium": null, "2/6 接客基礎": 67, "2/6 Cover": null, "2/10 接客基礎": 62, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": 64, "2/3 ３笑講座": null, "2/4 ３笑講座": 61, "3/10 Premium": null}, "AHI": {"2/6 Premium": null, "2/6 接客基礎": 66, "2/6 Cover": null, "2/10 接客基礎": 61, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": 73, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": 62, "3/10 Premium": 70}, "AMZ": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "MWC": {"2/6 Premium": 65, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "AKA": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": 62, "2/17 VIP研修": null, "3/6 Premium": 61, "3/6 Cover": null, "3/10 接客基礎": 64, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": 65}, "OSP": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "AKK": {"2/6 Premium": null, "2/6 接客基礎": 62, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": 64, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": 63}, "MIF": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "AHO": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "ATD": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": 63, "3/6 Cover": 72, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "SBY": {"2/6 Premium": 62, "2/6 接客基礎": 21, "2/6 Cover": 59, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": 58, "3/6 Cover": 72, "3/10 接客基礎": 46, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "SIS": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": 60, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "AKR": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "ROT": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": 63, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "LLS": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "AMU": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": 66, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": 64, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": 67}, "AHM": {"2/6 Premium": 59, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": 61, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": 73, "3/10 接客基礎": 64, "2/3 ３笑講座": 55, "2/4 ３笑講座": 56, "3/10 Premium": null}, "ACO": {"2/6 Premium": null, "2/6 接客基礎": 63, "2/6 Cover": 53, "2/10 接客基礎": 59, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": 65, "3/6 Cover": 74, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "ATY": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": 28, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "LPK": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": 50, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "ATS": {"2/6 Premium": 60, "2/6 接客基礎": 66, "2/6 Cover": 66, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": 64, "3/6 Cover": null, "3/10 接客基礎": 64, "2/3 ３笑講座": 48, "2/4 ３笑講座": null, "3/10 Premium": 70}, "AKH": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": 65, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "LGN": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "LLF": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": 60, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "AAY": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": 64, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "RSS": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": 64, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "KGM": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": 61, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "AMA": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "SPA": {"2/6 Premium": 60, "2/6 接客基礎": 65, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "KSD": {"2/6 Premium": 31, "2/6 接客基礎": 52, "2/6 Cover": 62, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "APN": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": 62, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "AKT": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "NGT": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": 63, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": null, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "ETT": {"2/6 Premium": 62, "2/6 接客基礎": 61, "2/6 Cover": 63, "2/10 接客基礎": 59, "2/10 Cover": null, "2/10 Premium": 62, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": 74, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}, "AMK": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": 67, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": 73, "3/10 接客基礎": 64, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": 67}, "SIO": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": 34, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": 73, "3/10 接客基礎": 63, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": 75}, "ISZ": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": null, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": 73, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": 70}, "IMI": {"2/6 Premium": null, "2/6 接客基礎": null, "2/6 Cover": null, "2/10 接客基礎": 59, "2/10 Cover": null, "2/10 Premium": null, "2/12 VIP研修": null, "2/17 VIP研修": null, "3/6 Premium": null, "3/6 Cover": 73, "3/10 接客基礎": null, "2/3 ３笑講座": null, "2/4 ３笑講座": null, "3/10 Premium": null}};
 
-const LECTURE_COLOR_MAP = {
-  '３笑':    {bg:'rgba(255,107,107,.15)',  color:'#ff6b6b'},
-  '接客基礎': {bg:'rgba(56,217,169,.15)',  color:'#38d9a9'},
-  'Cover':   {bg:'rgba(79,142,247,.15)',  color:'#4f8ef7'},
-  'Premium': {bg:'rgba(255,169,77,.15)',  color:'#ffa94d'},
-  'VIP':     {bg:'rgba(192,132,252,.15)', color:'#c084fc'},
-};
-function getMtgColor(mtg) {
-  if(mtg.includes('３笑'))    return LECTURE_COLOR_MAP['３笑'];
-  if(mtg.includes('接客基礎')) return LECTURE_COLOR_MAP['接客基礎'];
-  if(mtg.includes('Cover'))   return LECTURE_COLOR_MAP['Cover'];
-  if(mtg.includes('Premium')) return LECTURE_COLOR_MAP['Premium'];
-  if(mtg.includes('VIP'))     return LECTURE_COLOR_MAP['VIP'];
-  return {bg:'rgba(122,128,153,.15)',color:'#7a8099'};
-}
-const MTG_COLORS = new Proxy({}, { get: (t,m) => getMtgColor(m) });
+const AREA_ORDER = ['関東','東海','関西','九州','中国','東北','北海道','四国','沖縄','北陸・甲信越',''];
 
-let viewMode = 'store';
-let filterMtg = '';
+// store_map: code -> {code,name,manager,area}
+const SM = {};
+STORES.forEach(s => SM[s[0]] = {code:s[0],name:s[1],manager:s[2],area:s[3]||'',am:s[4]||'',ops:s[5]||''});
 
-// Build badges
-function buildBadges() {
-  const counts = {};
-  MEETINGS.forEach(m => counts[m] = ZOOM_LOG.filter(r => r.mtg===m).length);
-  const total = ZOOM_LOG.length;
+let fmode='all', showDet=false, sortMode='pct';
 
-  // 講座種別カウント
-  const LECTURE_TYPES = ['３笑','接客基礎','Cover','Premium','VIP'];
-  const LECTURE_COLORS = {
-    '３笑':    {bg:'rgba(255,107,107,.15)',color:'#ff6b6b'},
-    '接客基礎': {bg:'rgba(56,217,169,.15)', color:'#38d9a9'},
-    'Cover':   {bg:'rgba(79,142,247,.15)',  color:'#4f8ef7'},
-    'Premium': {bg:'rgba(255,169,77,.15)',  color:'#ffa94d'},
-    'VIP':     {bg:'rgba(192,132,252,.15)', color:'#c084fc'},
-  };
-  const lectureCounts = {};
-  LECTURE_TYPES.forEach(lt => {
-    lectureCounts[lt] = ZOOM_LOG.filter(r=>getLectureType(r.mtg)===lt).length;
-  });
-
-  let html = `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">`;
-  // 講座種別バッジ
-  html += `<div class="badge ${filterLecture===''&&filterMtg===''?'on':''}" onclick="setLectureFilter('')">
-    <span>全講座</span><span class="badge-count">${total}</span></div>`;
-  LECTURE_TYPES.forEach(lt => {
-    const c = LECTURE_COLORS[lt];
-    const cnt = lectureCounts[lt]||0;
-    if(!cnt) return;
-    html += `<div class="badge ${filterLecture===lt?'on':''}" onclick="setLectureFilter('${lt}')"
-      style="${filterLecture===lt?`background:${c.bg};border-color:${c.color};color:${c.color}`:''}" >
-      <span>${lt}</span><span class="badge-count">${cnt}</span></div>`;
-  });
-  html += `</div><div style="display:flex;gap:8px;flex-wrap:wrap">`;
-  // 個別ミーティングバッジ
-  MEETINGS.forEach(m => {
-    const c = MTG_COLORS[m]||{bg:'rgba(122,128,153,.15)',color:'#7a8099'};
-    html += `<div class="badge ${filterMtg===m?'on':''}" onclick="setMtgFilter('${m}')"
-      style="${filterMtg===m?`background:${c.bg};border-color:${c.color};color:${c.color}`:''}" >
-      <span>${m}</span><span class="badge-count">${counts[m]}</span></div>`;
-  });
-  html += `</div>`;
-  document.getElementById('badges').innerHTML = html;
+function getPct(code, mtgs){ mtgs=mtgs||MEETINGS;
+  const done = mtgs.filter(m => RESULT[code][m]!==null).length;
+  return Math.round(done/mtgs.length*100);
 }
 
-function setMtgFilter(m) { filterMtg=m; filterLecture=''; buildBadges(); render(); }
-function setLectureFilter(lt) { filterLecture=lt; filterMtg=''; buildBadges(); render(); }
-function setView(v) {
-  viewMode=v;
-  ['store','mtg','flat'].forEach(x=>document.getElementById('vt-'+x).classList.toggle('on',x===v));
+function sf(m){
+  fmode=m;
+  ['all','all3','some','none'].forEach(x=>document.getElementById('f-'+x).classList.toggle('on',x===m));
   render();
 }
 
-function getLectureType(mtg) {
-  if(mtg.includes('３笑'))    return '３笑';
-  if(mtg.includes('接客基礎')) return '接客基礎';
-  if(mtg.includes('Cover'))   return 'Cover';
-  if(mtg.includes('Premium')) return 'Premium';
-  if(mtg.includes('VIP'))     return 'VIP';
-  return 'その他';
+function toggleDet(){
+  showDet=!showDet;
+  document.getElementById('f-det').classList.toggle('on',showDet);
+  document.querySelectorAll('.ml').forEach(e=>e.style.display=showDet?'block':'none');
 }
 
-let filterLecture = '';
+function sortBy(m){sortMode=m;render();}
 
-function filtered() {
+function render(){
   const fi   = document.getElementById('fi').value.trim();
   const area = document.getElementById('area-sel').value;
-  const am   = document.getElementById('am-sel').value;
-  const opsD = document.getElementById('ops-sel-d').value;
-  return ZOOM_LOG.filter(r => {
-    if(filterMtg && r.mtg!==filterMtg) return false;
-    if(filterLecture && getLectureType(r.mtg)!==filterLecture) return false;
-    const s = SM[r.store]||{};
-    if(opsD && s.ops!==opsD) return false;
-    if(fi && !r.zoom.includes(fi) && !(s.name||'').includes(fi)) return false;
+  const am    = document.getElementById('am-sel').value;
+  const ops   = document.getElementById('ops-sel').value;
+  const month = document.getElementById('month-sel').value;
+  const visibleMtgs = month ? MEETINGS.filter(m=>m.startsWith(month+'/')) : MEETINGS;
+
+  let codes = Object.keys(RESULT).filter(code=>{
+    const s = SM[code];
+    if(fi && !s.name.includes(fi) && !s.code.includes(fi) && !s.manager.includes(fi)) return false;
     if(area && s.area!==area) return false;
     if(am && s.am!==am) return false;
+    if(ops && s.ops!==ops) return false;
+    if(month) {
+      const hasParticipation = visibleMtgs.some(m=>RESULT[code][m]!==null);
+      if(!hasParticipation) return false;
+    }
+    const done = visibleMtgs.filter(m=>RESULT[code][m]!==null).length;
+    if(fmode==='some') return done>0 && done<visibleMtgs.length;
+    if(fmode==='none') return done===0;
     return true;
   });
-}
 
-function render() {
-  buildBadges();
-  const data = filtered();
-  if(viewMode==='store') renderStore(data);
-  else if(viewMode==='mtg') renderMtg(data);
-  else renderFlat(data);
-}
+  // Sort
+  if(sortMode==='pct')  codes.sort((a,b)=>getPct(b,visibleMtgs)-getPct(a,visibleMtgs)||a.localeCompare(b,'ja'));
+  if(sortMode==='code') codes.sort((a,b)=>a.localeCompare(b));
+  if(sortMode==='month') codes.sort((a,b)=>{
+    const getFirst=code=>MEETINGS.findIndex(m=>RESULT[code][m]!==null);
+    return getFirst(a)-getFirst(b)||SM[a].name.localeCompare(SM[b].name,'ja');
+  });
+  if(sortMode==='am')   codes.sort((a,b)=>SM[a].am.localeCompare(SM[b].am,'ja')||SM[a].name.localeCompare(SM[b].name,'ja'));
+  if(sortMode==='area') codes.sort((a,b)=>{
+    const ai=AREA_ORDER.indexOf(SM[a].area), bi=AREA_ORDER.indexOf(SM[b].area);
+    return (ai===-1?99:ai)-(bi===-1?99:bi)||SM[a].name.localeCompare(SM[b].name,'ja');
+  });
 
-function renderStore(data) {
-  // Group by store
-  const groups = {};
-  data.forEach(r => {
-    if(!groups[r.store]) groups[r.store] = [];
-    groups[r.store].push(r);
-  });
-  const storeOrder = Object.keys(groups).sort((a,b)=>{
-    const sa=SM[a]||{}, sb=SM[b]||{};
-    return (sa.name||a).localeCompare(sb.name||b,'ja');
-  });
-  let html = '';
-  storeOrder.forEach(code => {
-    const s = SM[code]||{name:code,manager:'',area:''};
-    const rows = groups[code];
-    const mtgs = [...new Set(rows.map(r=>r.mtg))];
-    const chips = mtgs.map(m=>{
-      const c=MTG_COLORS[m]||{bg:'rgba(122,128,153,.15)',color:'#7a8099'};
-      return `<span class="chip" style="background:${c.bg};color:${c.color}">${m}</span>`;
+  // Summary (based on all stores, not filtered)
+  const all = Object.keys(RESULT);
+  const cs  = all.filter(c=>visibleMtgs.some(m=>RESULT[c][m]!==null)&&!visibleMtgs.every(m=>RESULT[c][m]!==null)).length;
+  const cn  = all.filter(c=>visibleMtgs.every(m=>RESULT[c][m]===null)).length;
+  document.getElementById('summary').innerHTML=`
+    <div class="card"><div class="cv b">${all.length}</div><div class="cl">総店舗数</div></div>
+    <div class="card"><div class="cv o">${cs}</div><div class="cl">一部参加</div></div>
+    <div class="card"><div class="cv r">${cn}</div><div class="cl">未参加</div></div>
+    <div class="card"><div class="cv">${MEETINGS.length}</div><div class="cl">ミーティング数</div></div>`;
+
+  // Header
+  document.getElementById('th').innerHTML=`<tr>
+    <th>コード</th><th>店舗名</th><th>SM</th><th>エリア</th><th>AM</th><th>運営</th>
+    ${visibleMtgs.map(m=>`<th class="c">${m}</th>`).join('')}
+    <th class="c">参加率</th></tr>`;
+
+  // Body
+  let prevArea='__', prevAM='__', prevMonth='__', rows='';
+  codes.forEach(code=>{
+    const s=SM[code];
+    if(sortMode==='month'){
+      const firstMtg=MEETINGS.find(m=>RESULT[code][m]!==null)||'';
+      const mLabel=firstMtg.split('/')[0]+'月';
+      if(mLabel!==prevMonth){
+        rows+=`<tr class="area-row"><td colspan="${6+visibleMtgs.length+1}">${mLabel} 初回参加</td></tr>`;
+        prevMonth=mLabel;
+      }
+    }
+    if(sortMode==='am' && s.am!==prevAM){
+      rows+=`<tr class="area-row"><td colspan="${6+visibleMtgs.length+1}">AM: ${esc(s.am)||'未設定'}</td></tr>`;
+      prevAM=s.am;
+    }
+    if(sortMode==='area' && s.area!==prevArea){
+      rows+=`<tr class="area-row"><td colspan="${6+visibleMtgs.length+1}">${s.area||'その他'}</td></tr>`;
+      prevArea=s.area;
+    }
+    const done=visibleMtgs.filter(m=>RESULT[code][m]!==null).length;
+    const pct=Math.round(visibleMtgs.length>0?done/visibleMtgs.length*100:0);
+    const rc=done===visibleMtgs.length&&done>0?'ra':done>0?'rp':'rn';
+    const bc=pct===100?'var(--grn)':pct>0?'var(--orn)':'var(--red)';
+    const cells=visibleMtgs.map(m=>{
+      const v=RESULT[code][m];
+      if(!v) return `<td class="cc"><span class="cross">−</span></td>`;
+      return `<td class="cc"><div class="ci"><span style="font-size:16px">✅</span>
+        <span class="ml" style="display:${showDet?'block':'none'}">${v}分</span></div></td>`;
     }).join('');
-    const rowsHtml = rows.map(r=>{
-      const c=MTG_COLORS[r.mtg]||{bg:'rgba(122,128,153,.15)',color:'#7a8099'};
-      return `<div class="sg-row">
-        <span class="zoom-name">${esc(r.zoom)}</span>
-        <span class="mtg-tag" style="background:${c.bg};color:${c.color}">${r.mtg}</span>
-        <span class="mins-tag">${r.mins}分</span>
-      </div>`;
-    }).join('');
-    html += `<div class="store-group" id="sg-${code}">
-      <div class="sg-header" onclick="toggleSG('${code}')">
-        <span class="sg-code">${esc(code)}</span>
-        <span class="sg-name">${esc(s.name)}</span>
-        <span class="sg-manager">${s.manager?'/ '+esc(s.manager):''}</span>
-        <div class="sg-chips">${chips}</div>
-        <span class="sg-area">${esc(s.area)}</span>
-        <span class="arrow">▼</span>
-      </div>
-      <div class="sg-body">${rowsHtml}</div>
-    </div>`;
-  });
-  document.getElementById('content').innerHTML = html || '<div style="padding:40px;text-align:center;color:var(--dim)">該当なし</div>';
-}
-
-function toggleSG(code) {
-  document.getElementById('sg-'+code).classList.toggle('collapsed');
-}
-
-function renderMtg(data) {
-  let html = '';
-  MEETINGS.forEach(mtg => {
-    const rows = data.filter(r=>r.mtg===mtg);
-    if(!rows.length) return;
-    const c=MTG_COLORS[mtg]||{bg:'rgba(122,128,153,.15)',color:'#7a8099'};
-    const rowsHtml = rows.map(r=>{
-      const s=SM[r.store]||{name:r.store,manager:'',area:''};
-      return `<div class="sg-row">
-        <span class="sg-code mono">${esc(r.store)}</span>
-        <span style="font-weight:500;min-width:180px">${esc(s.name)}</span>
-        <span class="zoom-name">${esc(r.zoom)}</span>
-        <span class="mins-tag">${r.mins}分</span>
-      </div>`;
-    }).join('');
-    html += `<div class="store-group">
-      <div class="sg-header" style="cursor:default">
-        <span class="mtg-tag" style="background:${c.bg};color:${c.color};padding:5px 14px;border-radius:8px;font-size:13px;font-weight:700">${mtg}</span>
-        <span style="font-size:12px;color:var(--dim);margin-left:8px">${rows.length}名参加</span>
-      </div>
-      <div class="sg-body">${rowsHtml}</div>
-    </div>`;
-  });
-  document.getElementById('content').innerHTML = html || '<div style="padding:40px;text-align:center;color:var(--dim)">該当なし</div>';
-}
-
-function renderFlat(data) {
-  const rows = data.map(r=>{
-    const s=SM[r.store]||{name:r.store,manager:'',area:''};
-    const c=MTG_COLORS[r.mtg]||{bg:'rgba(122,128,153,.15)',color:'#7a8099'};
-    return `<tr>
-      <td class="mono">${esc(r.store)}</td>
-      <td style="font-weight:500">${esc(s.name)}</td>
-      <td style="font-size:12px;color:var(--dim)">${esc(s.manager||'−')}</td>
-      <td><span class="mtg-tag" style="background:${c.bg};color:${c.color}">${r.mtg}</span></td>
-      <td class="mono" style="text-align:center">${r.mins}分</td>
-      <td style="font-size:12px;color:var(--dim)">${esc(r.zoom)}</td>
+    rows+=`<tr class="${rc}">
+      <td>${esc(code)}</td><td>${esc(s.name)}</td>
+      <td>${esc(s.manager||'−')}</td><td>${esc(s.area||'−')}</td><td style="font-size:12px;color:var(--dim)">${esc(s.am||'−')}</td>
+      <td style="font-size:11px;font-weight:700;text-align:center;color:#888">${esc(s.ops||'−')}</td>
+      ${cells}
+      <td class="pb"><div class="pl" style="color:${bc}">${pct}%</div>
+        <div class="pbar"><div class="pf" style="width:${pct}%;background:${bc}"></div></div></td>
     </tr>`;
-  }).join('');
-  document.getElementById('content').innerHTML=`
-    <div class="twrap"><table>
-      <thead><tr>
-        <th>コード</th><th>店舗名</th><th>SM</th>
-        <th>研修</th><th class="c">参加時間</th><th>Zoom表示名</th>
-      </tr></thead>
-      <tbody>${rows||'<tr><td colspan="6" style="text-align:center;padding:40px;color:var(--dim)">該当なし</td></tr>'}</tbody>
-    </table></div>`;
+  });
+  document.getElementById('tb').innerHTML=rows;
 }
 
-function exportCSV() {
-  const data = filtered();
-  const rows = [['コード','店舗名','SM','エリア','研修','参加時間(分)','Zoom表示名']];
-  data.forEach(r=>{
-    const s=SM[r.store]||{name:r.store,manager:'',area:''};
-    rows.push([r.store,s.name,s.manager||'',s.area||'',r.mtg,r.mins,r.zoom]);
+function exportCSV(){
+  const rows=[['コード','店舗名','SM','エリア','AM','運営',...MEETINGS,'参加率(%)']];
+  Object.keys(RESULT).sort().forEach(code=>{
+    const s=SM[code];
+    const vals=MEETINGS.map(m=>RESULT[code][m]?`✓(${RESULT[code][m]}分)`:'');
+    const pct=Math.round(MEETINGS.length>0?MEETINGS.filter(m=>RESULT[code][m]!==null).length/MEETINGS.length*100:0);
+    rows.push([code,s.name,s.manager||'',s.area||'',s.am||'',s.ops||'',...vals,pct]);
   });
   const bom='﻿',csv=bom+rows.map(r=>r.map(v=>`"${v}"`).join(',')).join('\n');
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
-  a.download='Yogibo研修参加者詳細.csv';a.click();
+  a.download='Yogibo研修参加状況.csv';a.click();
 }
 
 function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
