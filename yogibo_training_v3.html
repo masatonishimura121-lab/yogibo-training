@@ -126,6 +126,47 @@ tbody tr:hover td:nth-child(3),tbody tr:hover td:nth-child(4){background:var(--s
   tbody td:nth-child(1),tbody td:nth-child(2),tbody td:nth-child(3),tbody td:nth-child(4){background:#fff!important}
   .area-row td{background:#e8e8e8!important}
 }
+
+/* Graph Panel */
+.graph-panel{display:none;position:fixed;top:0;right:0;width:720px;height:100vh;
+  background:var(--sur);border-left:1px solid var(--bdr);z-index:500;
+  overflow-y:auto;box-shadow:-8px 0 32px rgba(0,0,0,.4)}
+.graph-panel.open{display:block}
+.gp-header{padding:18px 24px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;
+  justify-content:space-between;position:sticky;top:0;background:var(--sur);z-index:10}
+.gp-title{font-size:16px;font-weight:700}
+.gp-close{background:none;border:none;color:var(--dim);font-size:22px;cursor:pointer;line-height:1}
+.gp-close:hover{color:var(--txt)}
+.gp-tabs{display:flex;gap:0;border-bottom:1px solid var(--bdr);background:var(--sur2)}
+.gp-tab{padding:10px 20px;font-size:12px;font-weight:600;cursor:pointer;border:none;
+  background:none;color:var(--dim);font-family:'Noto Sans JP',sans-serif;
+  border-bottom:2px solid transparent;transition:.15s}
+.gp-tab.active{color:var(--acc);border-bottom-color:var(--acc)}
+.gp-body{padding:20px 24px}
+.gp-section{margin-bottom:28px}
+.gp-section h3{font-size:13px;font-weight:700;color:var(--dim);margin-bottom:14px;
+  text-transform:uppercase;letter-spacing:.5px}
+/* Bar chart */
+.bar-wrap{display:flex;flex-direction:column;gap:5px}
+.bar-row{display:flex;align-items:center;gap:8px;font-size:12px}
+.bar-label{width:160px;text-align:right;color:var(--dim);white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis;flex-shrink:0}
+.bar-track{flex:1;height:18px;background:var(--sur2);border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;transition:width .4s ease}
+.bar-val{width:28px;text-align:right;font-size:11px;font-weight:700;flex-shrink:0}
+/* Heatmap */
+.heatmap-wrap{overflow-x:auto}
+.heatmap-table{border-collapse:collapse;font-size:10px;white-space:nowrap}
+.heatmap-table th{padding:4px 6px;color:var(--dim);font-weight:500;text-align:center;
+  background:var(--sur2);border:1px solid var(--bdr)}
+.heatmap-table th.store-th{text-align:right;min-width:110px;max-width:130px;
+  overflow:hidden;text-overflow:ellipsis}
+.heatmap-table td{width:28px;height:24px;border:1px solid var(--bdr);text-align:center;
+  vertical-align:middle;font-size:10px;cursor:default}
+.graph-filter{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.graph-filter select{padding:5px 10px;background:var(--sur2);border:1px solid var(--bdr);
+  border-radius:6px;color:var(--txt);font-size:12px;font-family:inherit}
+.graph-filter label{font-size:12px;color:var(--dim)}
 </style>
 </head>
 <body><div class="wrap">
@@ -137,12 +178,21 @@ tbody tr:hover td:nth-child(3),tbody tr:hover td:nth-child(4){background:var(--s
   </div>
   <div class="hright">
     <a class="hbtn" href="yogibo_upload.html">📤 CSVアップロード</a>
+    <button class="hbtn" id="graph-toggle-btn" onclick="toggleGraphPanel()">📈 グラフ</button>
     <button class="btn" onclick="exportCSV()">📥 CSV</button>
     <button class="btn" onclick="window.print()">🖨 印刷</button>
   </div>
 </header>
 
 <div class="main">
+  <!-- メインタブ -->
+  <div style="display:flex;gap:0;border-bottom:1px solid var(--bdr);margin-bottom:20px">
+    <button class="vtab on" id="mt-store" onclick="switchMainTab('store')" style="padding:11px 22px;font-size:13px">🏪 店舗別参加状況</button>
+    <button class="vtab" id="mt-sm" onclick="switchMainTab('sm')" style="padding:11px 22px;font-size:13px">👤 SM別参加状況</button>
+  </div>
+
+  <!-- 店舗別パネル -->
+  <div id="panel-store">
   <div class="summary" id="summary"></div>
   <div class="ctrl">
     <input type="text" id="fi" placeholder="🔍 店舗名・コード・店長で絞り込み…" oninput="render()">
@@ -189,6 +239,43 @@ tbody tr:hover td:nth-child(3),tbody tr:hover td:nth-child(4){background:var(--s
     <div style="margin-left:auto;font-size:11px;color:var(--mut)">有効参加：5分以上　主催者・管理者は除外済み</div>
   </div>
   <div class="twrap"><table id="tbl"><thead id="th"></thead><tbody id="tb"></tbody></table></div>
+  </div><!-- /panel-store -->
+
+  <!-- SM別パネル -->
+  <div id="panel-sm" style="display:none">
+    <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
+      <input type="text" id="sm-fi" placeholder="🔍 SM名・店舗名・AMで絞り込み…"
+        oninput="renderSM()" style="padding:8px 14px;background:var(--sur2);border:1px solid var(--bdr);
+        border-radius:8px;color:var(--txt);font-size:13px;font-family:inherit;width:280px">
+      <select id="sm-area" onchange="renderSM()" style="padding:8px 12px;background:var(--sur2);
+        border:1px solid var(--bdr);border-radius:8px;color:var(--txt);font-size:13px;font-family:inherit">
+        <option value="">全エリア</option>
+        <option>北海道</option><option>東北</option><option>関東</option>
+        <option>北陸・甲信越</option><option>東海</option><option>関西</option>
+        <option>中国</option><option>四国</option><option>九州</option><option>沖縄</option>
+      </select>
+      <select id="sm-am" onchange="renderSM()" style="padding:8px 12px;background:var(--sur2);
+        border:1px solid var(--bdr);border-radius:8px;color:var(--txt);font-size:13px;font-family:inherit">
+        <option value="">全AM</option>
+        <option>旭</option><option>才賀</option><option>内田</option>
+        <option>佐伯</option><option>渡邊</option><option>花渕</option>
+        <option>荒金</option><option>西村</option>
+      </select>
+      <select id="sm-month" onchange="renderSM()" style="padding:8px 12px;background:var(--sur2);
+        border:1px solid var(--bdr);border-radius:8px;color:var(--txt);font-size:13px;font-family:inherit">
+        <option value="">全期間</option>
+        <option value="2">2月</option><option value="3">3月</option><option value="4">4月</option>
+      </select>
+      <span id="sm-count" style="font-size:12px;color:var(--dim);margin-left:4px"></span>
+    </div>
+    <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:12px" id="sm-tbl">
+        <thead id="sm-th"></thead>
+        <tbody id="sm-tb"></tbody>
+      </table>
+    </div>
+  </div><!-- /panel-sm -->
+
   <div class="note">
     <strong>名寄せ・表記ゆれ補正済み</strong>　店舗マスタ・スタッフリスト（店長名）と突合しました。<br>
     「AM川口店」→ イオンモール川口 ／ 「酒々井プレミアムアウトレット」→ 酒々井PREMIUM OUTLET ／
@@ -219,6 +306,80 @@ function sf(m){
   fmode=m;
   ['all','all3','some','none'].forEach(x=>document.getElementById('f-'+x).classList.toggle('on',x===m));
   render();
+
+// ===== SM別タブ =====
+let mainTab = 'store';
+
+function switchMainTab(tab) {
+  mainTab = tab;
+  document.getElementById('panel-store').style.display = tab==='store' ? '' : 'none';
+  document.getElementById('panel-sm').style.display    = tab==='sm'    ? '' : 'none';
+  document.getElementById('mt-store').classList.toggle('on', tab==='store');
+  document.getElementById('mt-sm').classList.toggle('on', tab==='sm');
+  if(tab==='sm') renderSM();
+}
+
+function renderSM() {
+  const fi    = (document.getElementById('sm-fi').value||'').trim();
+  const area  = document.getElementById('sm-area').value;
+  const am    = document.getElementById('sm-am').value;
+  const month = document.getElementById('sm-month').value;
+  const vmtgs = month ? MEETINGS.filter(m=>m.startsWith(month+'/')) : MEETINGS;
+
+  // OPEN店舗のみ・フィルター適用
+  const rows = Object.keys(RESULT).filter(code=>{
+    const s = SM[code];
+    if(!s || s.opcl==='CLOSE') return false;
+    if(area && s.area!==area) return false;
+    if(am   && s.am!==am)     return false;
+    if(fi && !s.name.includes(fi) && !(s.manager||'').includes(fi) && !(s.am||'').includes(fi)) return false;
+    return true;
+  }).map(code=>{
+    const s = SM[code];
+    const done = vmtgs.filter(m=>RESULT[code][m]!==null&&RESULT[code][m]!==undefined).length;
+    const pct  = vmtgs.length>0 ? Math.round(done/vmtgs.length*100) : 0;
+    return {code, name:s.name, manager:s.manager||'−', am:s.am||'−', area:s.area||'−',
+             done, pct, vmtgs};
+  }).sort((a,b)=>b.pct-a.pct||a.name.localeCompare(b.name,'ja'));
+
+  document.getElementById('sm-count').textContent = rows.length + '名';
+
+  // ヘッダー
+  document.getElementById('sm-th').innerHTML = `<tr style="background:var(--sur2)">
+    <th style="padding:9px 12px;text-align:left;border-bottom:1px solid var(--bdr);white-space:nowrap;color:var(--dim);font-weight:600">SM名</th>
+    <th style="padding:9px 12px;text-align:left;border-bottom:1px solid var(--bdr);white-space:nowrap;color:var(--dim);font-weight:600">店舗名</th>
+    <th style="padding:9px 12px;text-align:left;border-bottom:1px solid var(--bdr);white-space:nowrap;color:var(--dim);font-weight:600">エリア</th>
+    <th style="padding:9px 12px;text-align:left;border-bottom:1px solid var(--bdr);white-space:nowrap;color:var(--dim);font-weight:600">AM</th>
+    ${vmtgs.map(m=>`<th style="padding:6px 8px;text-align:center;border-bottom:1px solid var(--bdr);white-space:nowrap;color:var(--dim);font-weight:500;font-size:10px">${m.replace('３笑講座','３笑').replace('接客基礎','接客').replace('研修','')}</th>`).join('')}
+    <th style="padding:9px 12px;text-align:center;border-bottom:1px solid var(--bdr);white-space:nowrap;color:var(--dim);font-weight:600">参加率</th>
+  </tr>`;
+
+  // ボディ
+  document.getElementById('sm-tb').innerHTML = rows.map(r=>{
+    const pctColor = r.pct>=70?'#38d9a9':r.pct>=40?'#ffa94d':'#ff6b6b';
+    const cells = r.vmtgs.map(m=>{
+      const mins = RESULT[r.code][m];
+      const ok = mins!==null&&mins!==undefined;
+      return `<td style="text-align:center;padding:6px 8px;border-bottom:1px solid rgba(42,48,69,.4)">
+        ${ok?`<span style="color:#38d9a9;font-size:14px">✓</span>`:`<span style="color:var(--mut)">−</span>`}
+      </td>`;
+    }).join('');
+    return `<tr style="border-bottom:1px solid rgba(42,48,69,.4)" onmouseover="this.style.background='var(--sur2)'" onmouseout="this.style.background=''">
+      <td style="padding:9px 12px;font-weight:600;white-space:nowrap">${esc(r.manager)}</td>
+      <td style="padding:9px 12px;white-space:nowrap">${esc(r.name)}</td>
+      <td style="padding:9px 12px;font-size:11px;color:var(--dim);white-space:nowrap">${esc(r.area)}</td>
+      <td style="padding:9px 12px;font-size:11px;color:var(--dim);white-space:nowrap">${esc(r.am)}</td>
+      ${cells}
+      <td style="padding:9px 12px;text-align:center">
+        <span style="font-weight:700;color:${pctColor}">${r.pct}%</span>
+        <div style="height:3px;background:var(--bdr);border-radius:2px;margin-top:3px;width:50px;margin-left:auto;margin-right:auto">
+          <div style="height:100%;width:${r.pct}%;background:${pctColor};border-radius:2px"></div>
+        </div>
+      </td>
+    </tr>`;
+  }).join('') || `<tr><td colspan="${4+r?.vmtgs?.length+1||6}" style="padding:20px;text-align:center;color:var(--dim)">該当なし</td></tr>`;
+}
+
 }
 
 function toggleDet(){
@@ -341,5 +502,149 @@ function exportCSV(){
 function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
 render();
+
+// ===== SM別タブ =====
+let mainTab = 'store';
+
+function switchMainTab(tab) {
+  mainTab = tab;
+  document.getElementById('panel-store').style.display = tab==='store' ? '' : 'none';
+  document.getElementById('panel-sm').style.display    = tab==='sm'    ? '' : 'none';
+  document.getElementById('mt-store').classList.toggle('on', tab==='store');
+  document.getElementById('mt-sm').classList.toggle('on', tab==='sm');
+  if(tab==='sm') renderSM();
+}
+
+function renderSM() {
+  const fi    = (document.getElementById('sm-fi').value||'').trim();
+  const area  = document.getElementById('sm-area').value;
+  const am    = document.getElementById('sm-am').value;
+  const month = document.getElementById('sm-month').value;
+  const vmtgs = month ? MEETINGS.filter(m=>m.startsWith(month+'/')) : MEETINGS;
+
+  // OPEN店舗のみ・フィルター適用
+  const rows = Object.keys(RESULT).filter(code=>{
+    const s = SM[code];
+    if(!s || s.opcl==='CLOSE') return false;
+    if(area && s.area!==area) return false;
+    if(am   && s.am!==am)     return false;
+    if(fi && !s.name.includes(fi) && !(s.manager||'').includes(fi) && !(s.am||'').includes(fi)) return false;
+    return true;
+  }).map(code=>{
+    const s = SM[code];
+    const done = vmtgs.filter(m=>RESULT[code][m]!==null&&RESULT[code][m]!==undefined).length;
+    const pct  = vmtgs.length>0 ? Math.round(done/vmtgs.length*100) : 0;
+    return {code, name:s.name, manager:s.manager||'−', am:s.am||'−', area:s.area||'−',
+             done, pct, vmtgs};
+  }).sort((a,b)=>b.pct-a.pct||a.name.localeCompare(b.name,'ja'));
+
+  document.getElementById('sm-count').textContent = rows.length + '名';
+
+  // ヘッダー
+  document.getElementById('sm-th').innerHTML = `<tr style="background:var(--sur2)">
+    <th style="padding:9px 12px;text-align:left;border-bottom:1px solid var(--bdr);white-space:nowrap;color:var(--dim);font-weight:600">SM名</th>
+    <th style="padding:9px 12px;text-align:left;border-bottom:1px solid var(--bdr);white-space:nowrap;color:var(--dim);font-weight:600">店舗名</th>
+    <th style="padding:9px 12px;text-align:left;border-bottom:1px solid var(--bdr);white-space:nowrap;color:var(--dim);font-weight:600">エリア</th>
+    <th style="padding:9px 12px;text-align:left;border-bottom:1px solid var(--bdr);white-space:nowrap;color:var(--dim);font-weight:600">AM</th>
+    ${vmtgs.map(m=>`<th style="padding:6px 8px;text-align:center;border-bottom:1px solid var(--bdr);white-space:nowrap;color:var(--dim);font-weight:500;font-size:10px">${m.replace('３笑講座','３笑').replace('接客基礎','接客').replace('研修','')}</th>`).join('')}
+    <th style="padding:9px 12px;text-align:center;border-bottom:1px solid var(--bdr);white-space:nowrap;color:var(--dim);font-weight:600">参加率</th>
+  </tr>`;
+
+  // ボディ
+  document.getElementById('sm-tb').innerHTML = rows.map(r=>{
+    const pctColor = r.pct>=70?'#38d9a9':r.pct>=40?'#ffa94d':'#ff6b6b';
+    const cells = r.vmtgs.map(m=>{
+      const mins = RESULT[r.code][m];
+      const ok = mins!==null&&mins!==undefined;
+      return `<td style="text-align:center;padding:6px 8px;border-bottom:1px solid rgba(42,48,69,.4)">
+        ${ok?`<span style="color:#38d9a9;font-size:14px">✓</span>`:`<span style="color:var(--mut)">−</span>`}
+      </td>`;
+    }).join('');
+    return `<tr style="border-bottom:1px solid rgba(42,48,69,.4)" onmouseover="this.style.background='var(--sur2)'" onmouseout="this.style.background=''">
+      <td style="padding:9px 12px;font-weight:600;white-space:nowrap">${esc(r.manager)}</td>
+      <td style="padding:9px 12px;white-space:nowrap">${esc(r.name)}</td>
+      <td style="padding:9px 12px;font-size:11px;color:var(--dim);white-space:nowrap">${esc(r.area)}</td>
+      <td style="padding:9px 12px;font-size:11px;color:var(--dim);white-space:nowrap">${esc(r.am)}</td>
+      ${cells}
+      <td style="padding:9px 12px;text-align:center">
+        <span style="font-weight:700;color:${pctColor}">${r.pct}%</span>
+        <div style="height:3px;background:var(--bdr);border-radius:2px;margin-top:3px;width:50px;margin-left:auto;margin-right:auto">
+          <div style="height:100%;width:${r.pct}%;background:${pctColor};border-radius:2px"></div>
+        </div>
+      </td>
+    </tr>`;
+  }).join('') || `<tr><td colspan="${4+r?.vmtgs?.length+1||6}" style="padding:20px;text-align:center;color:var(--dim)">該当なし</td></tr>`;
+}
+
 </script>
+
+<!-- Graph Panel -->
+<div class="graph-panel" id="graph-panel">
+  <div class="gp-header">
+    <span class="gp-title">📈 参加状況グラフ</span>
+    <button class="gp-close" onclick="toggleGraphPanel()">✕</button>
+  </div>
+  <div class="gp-tabs">
+    <button class="gp-tab active" onclick="switchGTab('bar')">棒グラフ（参加回数）</button>
+    <button class="gp-tab" onclick="switchGTab('heat')">ヒートマップ</button>
+  </div>
+  <div class="gp-body">
+    <!-- 棒グラフ -->
+    <div id="gtab-bar">
+      <div class="graph-filter">
+        <label>エリア:</label>
+        <select id="g-area" onchange="renderGraphs()">
+          <option value="">全エリア</option>
+          <option>関東</option><option>東海</option><option>関西</option>
+          <option>九州</option><option>中国</option><option>東北</option>
+          <option>北海道</option><option>四国</option><option>沖縄</option>
+          <option>北陸・甲信越</option>
+        </select>
+        <label>AM:</label>
+        <select id="g-am" onchange="renderGraphs()">
+          <option value="">全AM</option>
+          <option>旭</option><option>才賀</option><option>内田</option>
+          <option>佐伯</option><option>渡邊</option><option>花渕</option>
+          <option>荒金</option><option>西村</option>
+        </select>
+        <label>期間:</label>
+        <select id="g-month" onchange="renderGraphs()">
+          <option value="">全期間</option>
+          <option value="2">2月</option>
+          <option value="3">3月</option>
+          <option value="4">4月</option>
+        </select>
+      </div>
+      <div class="gp-section">
+        <h3>店舗別 総参加回数（上位40店舗）</h3>
+        <div class="bar-wrap" id="bar-store"></div>
+      </div>
+    </div>
+    <!-- ヒートマップ -->
+    <div id="gtab-heat" style="display:none">
+      <div class="graph-filter">
+        <label>エリア:</label>
+        <select id="h-area" onchange="renderHeatmap()">
+          <option value="">全エリア</option>
+          <option>関東</option><option>東海</option><option>関西</option>
+          <option>九州</option><option>中国</option><option>東北</option>
+          <option>北海道</option><option>四国</option><option>沖縄</option>
+          <option>北陸・甲信越</option>
+        </select>
+        <label>AM:</label>
+        <select id="h-am" onchange="renderHeatmap()">
+          <option value="">全AM</option>
+          <option>旭</option><option>才賀</option><option>内田</option>
+          <option>佐伯</option><option>渡邊</option><option>花渕</option>
+          <option>荒金</option><option>西村</option>
+        </select>
+      </div>
+      <div class="gp-section">
+        <h3>店舗 × 講座 ヒートマップ</h3>
+        <div class="heatmap-wrap" id="heatmap-wrap"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 </body></html>
