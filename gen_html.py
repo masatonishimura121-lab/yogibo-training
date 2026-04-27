@@ -6,9 +6,11 @@ with open('data_v3.json') as f:
 stores = d['stores']   # [(code, name, manager, area), ...]
 meetings = d['meetings']
 result = d['result']
+zoom_log = d['zoom_log']
 
 js_stores   = json.dumps(stores,   ensure_ascii=False)
 js_meetings = json.dumps(meetings, ensure_ascii=False)
+js_zoom_log = json.dumps(zoom_log, ensure_ascii=False)
 js_result   = json.dumps(result,   ensure_ascii=False)
 
 # エリア順ソート用
@@ -284,6 +286,7 @@ tbody tr:hover td:nth-child(3),tbody tr:hover td:nth-child(4){{background:var(--
       </select>
       <span id="sm-count" style="font-size:12px;color:var(--dim);margin-left:4px"></span>
     </div>
+    <div id="sm-legend"></div>
     <div style="overflow-x:auto">
       <table style="width:100%;border-collapse:collapse;font-size:12px" id="sm-tbl">
         <thead id="sm-th"></thead>
@@ -304,6 +307,7 @@ tbody tr:hover td:nth-child(3),tbody tr:hover td:nth-child(4){{background:var(--
 const STORES   = {js_stores};
 const MEETINGS = {js_meetings};
 const RESULT   = {js_result};
+const ZOOM_LOG = {js_zoom_log};
 
 const AREA_ORDER = ['関東','東海','関西','九州','中国','東北','北海道','四国','沖縄','北陸・甲信越',''];
 
@@ -335,6 +339,40 @@ function switchMainTab(tab) {{
   if(tab==='sm') renderSM();
 }}
 
+// SM名とzoom表示名の照合
+function smInZoom(smName, zoomName) {{
+  if(!smName || !zoomName) return false;
+  smName = smName.trim();
+  zoomName = zoomName.trim();
+  // フルネーム一致
+  if(zoomName.includes(smName)) return true;
+  // 姓のみ（スペース区切り最初）で一致（2文字以上）
+  const sei = smName.split(/[ 　]/)[0];
+  if(sei && sei.length >= 2 && zoomName.includes(sei)) return true;
+  return false;
+}}
+
+// zoom_logをミーティング×店舗でインデックス化
+function buildZoomIndex() {{
+  const idx = {{}};
+  ZOOM_LOG.forEach(log => {{
+    if(!idx[log.mtg]) idx[log.mtg] = {{}};
+    if(!idx[log.mtg][log.store]) idx[log.mtg][log.store] = [];
+    idx[log.mtg][log.store].push(log.zoom);
+  }});
+  return idx;
+}}
+const ZOOM_IDX = buildZoomIndex();
+
+// SM個人参加状況を判定
+// 戻り値: 'sm'=SM確認済み / 'store'=店舗参加あり / 'none'=未参加
+function getSmStatus(code, mtg, smName) {{
+  const zooms = ZOOM_IDX[mtg]?.[code] || [];
+  if(zooms.length === 0) return 'none';
+  if(smName && smName !== '−' && zooms.some(z => smInZoom(smName, z))) return 'sm';
+  return 'store';
+}}
+
 function renderSM() {{
   const fi    = (document.getElementById('sm-fi').value||'').trim();
   const area  = document.getElementById('sm-area').value;
@@ -342,7 +380,6 @@ function renderSM() {{
   const month = document.getElementById('sm-month').value;
   const vmtgs = month ? MEETINGS.filter(m=>m.startsWith(month+'/')) : MEETINGS;
 
-  // OPEN店舗のみ・フィルター適用
   const rows = Object.keys(RESULT).filter(code=>{{
     const s = SM[code];
     if(!s || s.opcl==='CLOSE') return false;
@@ -352,13 +389,26 @@ function renderSM() {{
     return true;
   }}).map(code=>{{
     const s = SM[code];
-    const done = vmtgs.filter(m=>RESULT[code][m]!==null&&RESULT[code][m]!==undefined).length;
-    const pct  = vmtgs.length>0 ? Math.round(done/vmtgs.length*100) : 0;
-    return {{code, name:s.name, manager:s.manager||'−', am:s.am||'−', area:s.area||'−',
-             done, pct, vmtgs}};
-  }}).sort((a,b)=>b.pct-a.pct||a.name.localeCompare(b.name,'ja'));
+    const smName = s.manager||'';
+    // SM個人参加としてカウント（sm=2点, store=1点で参加率算出）
+    const statuses = vmtgs.map(m => getSmStatus(code, m, smName));
+    const smCount    = statuses.filter(st=>st==='sm').length;
+    const storeCount = statuses.filter(st=>st==='store').length;
+    const pct = vmtgs.length>0 ? Math.round(smCount/vmtgs.length*100) : 0;
+    return {{code, name:s.name, manager:smName||'−', am:s.am||'−', area:s.area||'−',
+             smCount, storeCount, pct, vmtgs, statuses}};
+  }}).sort((a,b)=>b.pct-a.pct||b.storeCount-a.storeCount||a.name.localeCompare(b.name,'ja'));
 
   document.getElementById('sm-count').textContent = rows.length + '名';
+
+  // 凡例
+  const legend = `<div style="display:flex;gap:16px;margin-bottom:12px;font-size:12px;align-items:center">
+    <span style="color:var(--dim)">凡例:</span>
+    <span><span style="color:#38d9a9;font-weight:700">✓ SM確認済み</span></span>
+    <span><span style="color:#ffa94d;font-weight:700">△ 店舗参加あり</span>（SM以外のスタッフが参加）</span>
+    <span><span style="color:var(--mut)">− 未参加</span></span>
+  </div>`;
+  document.getElementById('sm-legend').innerHTML = legend;
 
   // ヘッダー
   document.getElementById('sm-th').innerHTML = `<tr style="background:var(--sur2)">
@@ -367,18 +417,19 @@ function renderSM() {{
     <th style="padding:9px 12px;text-align:left;border-bottom:1px solid var(--bdr);white-space:nowrap;color:var(--dim);font-weight:600">エリア</th>
     <th style="padding:9px 12px;text-align:left;border-bottom:1px solid var(--bdr);white-space:nowrap;color:var(--dim);font-weight:600">AM</th>
     ${{vmtgs.map(m=>`<th style="padding:6px 8px;text-align:center;border-bottom:1px solid var(--bdr);white-space:nowrap;color:var(--dim);font-weight:500;font-size:10px">${{m.replace('３笑講座','３笑').replace('接客基礎','接客').replace('研修','')}}</th>`).join('')}}
-    <th style="padding:9px 12px;text-align:center;border-bottom:1px solid var(--bdr);white-space:nowrap;color:var(--dim);font-weight:600">参加率</th>
+    <th style="padding:9px 12px;text-align:center;border-bottom:1px solid var(--bdr);white-space:nowrap;color:var(--dim);font-weight:600">SM参加率</th>
   </tr>`;
 
   // ボディ
   document.getElementById('sm-tb').innerHTML = rows.map(r=>{{
-    const pctColor = r.pct>=70?'#38d9a9':r.pct>=40?'#ffa94d':'#ff6b6b';
-    const cells = r.vmtgs.map(m=>{{
-      const mins = RESULT[r.code][m];
-      const ok = mins!==null&&mins!==undefined;
-      return `<td style="text-align:center;padding:6px 8px;border-bottom:1px solid rgba(42,48,69,.4)">
-        ${{ok?`<span style="color:#38d9a9;font-size:14px">✓</span>`:`<span style="color:var(--mut)">−</span>`}}
-      </td>`;
+    const pctColor = r.pct>=70?'#38d9a9':r.pct>=40?'#ffa94d':'#7a8099';
+    const cells = r.vmtgs.map((m,i)=>{{
+      const st = r.statuses[i];
+      let cell;
+      if(st==='sm')    cell = `<span style="color:#38d9a9;font-size:15px;font-weight:700" title="SM本人参加">✓</span>`;
+      else if(st==='store') cell = `<span style="color:#ffa94d;font-size:13px;font-weight:700" title="店舗参加あり（SM以外）">△</span>`;
+      else             cell = `<span style="color:var(--mut)">−</span>`;
+      return `<td style="text-align:center;padding:6px 8px;border-bottom:1px solid rgba(42,48,69,.4)">${{cell}}</td>`;
     }}).join('');
     return `<tr style="border-bottom:1px solid rgba(42,48,69,.4)" onmouseover="this.style.background='var(--sur2)'" onmouseout="this.style.background=''">
       <td style="padding:9px 12px;font-weight:600;white-space:nowrap">${{esc(r.manager)}}</td>
@@ -531,6 +582,40 @@ function switchMainTab(tab) {{
   if(tab==='sm') renderSM();
 }}
 
+// SM名とzoom表示名の照合
+function smInZoom(smName, zoomName) {{
+  if(!smName || !zoomName) return false;
+  smName = smName.trim();
+  zoomName = zoomName.trim();
+  // フルネーム一致
+  if(zoomName.includes(smName)) return true;
+  // 姓のみ（スペース区切り最初）で一致（2文字以上）
+  const sei = smName.split(/[ 　]/)[0];
+  if(sei && sei.length >= 2 && zoomName.includes(sei)) return true;
+  return false;
+}}
+
+// zoom_logをミーティング×店舗でインデックス化
+function buildZoomIndex() {{
+  const idx = {{}};
+  ZOOM_LOG.forEach(log => {{
+    if(!idx[log.mtg]) idx[log.mtg] = {{}};
+    if(!idx[log.mtg][log.store]) idx[log.mtg][log.store] = [];
+    idx[log.mtg][log.store].push(log.zoom);
+  }});
+  return idx;
+}}
+const ZOOM_IDX = buildZoomIndex();
+
+// SM個人参加状況を判定
+// 戻り値: 'sm'=SM確認済み / 'store'=店舗参加あり / 'none'=未参加
+function getSmStatus(code, mtg, smName) {{
+  const zooms = ZOOM_IDX[mtg]?.[code] || [];
+  if(zooms.length === 0) return 'none';
+  if(smName && smName !== '−' && zooms.some(z => smInZoom(smName, z))) return 'sm';
+  return 'store';
+}}
+
 function renderSM() {{
   const fi    = (document.getElementById('sm-fi').value||'').trim();
   const area  = document.getElementById('sm-area').value;
@@ -538,7 +623,6 @@ function renderSM() {{
   const month = document.getElementById('sm-month').value;
   const vmtgs = month ? MEETINGS.filter(m=>m.startsWith(month+'/')) : MEETINGS;
 
-  // OPEN店舗のみ・フィルター適用
   const rows = Object.keys(RESULT).filter(code=>{{
     const s = SM[code];
     if(!s || s.opcl==='CLOSE') return false;
@@ -548,13 +632,26 @@ function renderSM() {{
     return true;
   }}).map(code=>{{
     const s = SM[code];
-    const done = vmtgs.filter(m=>RESULT[code][m]!==null&&RESULT[code][m]!==undefined).length;
-    const pct  = vmtgs.length>0 ? Math.round(done/vmtgs.length*100) : 0;
-    return {{code, name:s.name, manager:s.manager||'−', am:s.am||'−', area:s.area||'−',
-             done, pct, vmtgs}};
-  }}).sort((a,b)=>b.pct-a.pct||a.name.localeCompare(b.name,'ja'));
+    const smName = s.manager||'';
+    // SM個人参加としてカウント（sm=2点, store=1点で参加率算出）
+    const statuses = vmtgs.map(m => getSmStatus(code, m, smName));
+    const smCount    = statuses.filter(st=>st==='sm').length;
+    const storeCount = statuses.filter(st=>st==='store').length;
+    const pct = vmtgs.length>0 ? Math.round(smCount/vmtgs.length*100) : 0;
+    return {{code, name:s.name, manager:smName||'−', am:s.am||'−', area:s.area||'−',
+             smCount, storeCount, pct, vmtgs, statuses}};
+  }}).sort((a,b)=>b.pct-a.pct||b.storeCount-a.storeCount||a.name.localeCompare(b.name,'ja'));
 
   document.getElementById('sm-count').textContent = rows.length + '名';
+
+  // 凡例
+  const legend = `<div style="display:flex;gap:16px;margin-bottom:12px;font-size:12px;align-items:center">
+    <span style="color:var(--dim)">凡例:</span>
+    <span><span style="color:#38d9a9;font-weight:700">✓ SM確認済み</span></span>
+    <span><span style="color:#ffa94d;font-weight:700">△ 店舗参加あり</span>（SM以外のスタッフが参加）</span>
+    <span><span style="color:var(--mut)">− 未参加</span></span>
+  </div>`;
+  document.getElementById('sm-legend').innerHTML = legend;
 
   // ヘッダー
   document.getElementById('sm-th').innerHTML = `<tr style="background:var(--sur2)">
@@ -563,18 +660,19 @@ function renderSM() {{
     <th style="padding:9px 12px;text-align:left;border-bottom:1px solid var(--bdr);white-space:nowrap;color:var(--dim);font-weight:600">エリア</th>
     <th style="padding:9px 12px;text-align:left;border-bottom:1px solid var(--bdr);white-space:nowrap;color:var(--dim);font-weight:600">AM</th>
     ${{vmtgs.map(m=>`<th style="padding:6px 8px;text-align:center;border-bottom:1px solid var(--bdr);white-space:nowrap;color:var(--dim);font-weight:500;font-size:10px">${{m.replace('３笑講座','３笑').replace('接客基礎','接客').replace('研修','')}}</th>`).join('')}}
-    <th style="padding:9px 12px;text-align:center;border-bottom:1px solid var(--bdr);white-space:nowrap;color:var(--dim);font-weight:600">参加率</th>
+    <th style="padding:9px 12px;text-align:center;border-bottom:1px solid var(--bdr);white-space:nowrap;color:var(--dim);font-weight:600">SM参加率</th>
   </tr>`;
 
   // ボディ
   document.getElementById('sm-tb').innerHTML = rows.map(r=>{{
-    const pctColor = r.pct>=70?'#38d9a9':r.pct>=40?'#ffa94d':'#ff6b6b';
-    const cells = r.vmtgs.map(m=>{{
-      const mins = RESULT[r.code][m];
-      const ok = mins!==null&&mins!==undefined;
-      return `<td style="text-align:center;padding:6px 8px;border-bottom:1px solid rgba(42,48,69,.4)">
-        ${{ok?`<span style="color:#38d9a9;font-size:14px">✓</span>`:`<span style="color:var(--mut)">−</span>`}}
-      </td>`;
+    const pctColor = r.pct>=70?'#38d9a9':r.pct>=40?'#ffa94d':'#7a8099';
+    const cells = r.vmtgs.map((m,i)=>{{
+      const st = r.statuses[i];
+      let cell;
+      if(st==='sm')    cell = `<span style="color:#38d9a9;font-size:15px;font-weight:700" title="SM本人参加">✓</span>`;
+      else if(st==='store') cell = `<span style="color:#ffa94d;font-size:13px;font-weight:700" title="店舗参加あり（SM以外）">△</span>`;
+      else             cell = `<span style="color:var(--mut)">−</span>`;
+      return `<td style="text-align:center;padding:6px 8px;border-bottom:1px solid rgba(42,48,69,.4)">${{cell}}</td>`;
     }}).join('');
     return `<tr style="border-bottom:1px solid rgba(42,48,69,.4)" onmouseover="this.style.background='var(--sur2)'" onmouseout="this.style.background=''">
       <td style="padding:9px 12px;font-weight:600;white-space:nowrap">${{esc(r.manager)}}</td>
@@ -975,6 +1073,40 @@ function switchMainTab(tab) {{
   if(tab==='sm') renderSM();
 }}
 
+// SM名とzoom表示名の照合
+function smInZoom(smName, zoomName) {{
+  if(!smName || !zoomName) return false;
+  smName = smName.trim();
+  zoomName = zoomName.trim();
+  // フルネーム一致
+  if(zoomName.includes(smName)) return true;
+  // 姓のみ（スペース区切り最初）で一致（2文字以上）
+  const sei = smName.split(/[ 　]/)[0];
+  if(sei && sei.length >= 2 && zoomName.includes(sei)) return true;
+  return false;
+}}
+
+// zoom_logをミーティング×店舗でインデックス化
+function buildZoomIndex() {{
+  const idx = {{}};
+  ZOOM_LOG.forEach(log => {{
+    if(!idx[log.mtg]) idx[log.mtg] = {{}};
+    if(!idx[log.mtg][log.store]) idx[log.mtg][log.store] = [];
+    idx[log.mtg][log.store].push(log.zoom);
+  }});
+  return idx;
+}}
+const ZOOM_IDX = buildZoomIndex();
+
+// SM個人参加状況を判定
+// 戻り値: 'sm'=SM確認済み / 'store'=店舗参加あり / 'none'=未参加
+function getSmStatus(code, mtg, smName) {{
+  const zooms = ZOOM_IDX[mtg]?.[code] || [];
+  if(zooms.length === 0) return 'none';
+  if(smName && smName !== '−' && zooms.some(z => smInZoom(smName, z))) return 'sm';
+  return 'store';
+}}
+
 function renderSM() {{
   const fi    = (document.getElementById('sm-fi').value||'').trim();
   const area  = document.getElementById('sm-area').value;
@@ -982,7 +1114,6 @@ function renderSM() {{
   const month = document.getElementById('sm-month').value;
   const vmtgs = month ? MEETINGS.filter(m=>m.startsWith(month+'/')) : MEETINGS;
 
-  // OPEN店舗のみ・フィルター適用
   const rows = Object.keys(RESULT).filter(code=>{{
     const s = SM[code];
     if(!s || s.opcl==='CLOSE') return false;
@@ -992,13 +1123,26 @@ function renderSM() {{
     return true;
   }}).map(code=>{{
     const s = SM[code];
-    const done = vmtgs.filter(m=>RESULT[code][m]!==null&&RESULT[code][m]!==undefined).length;
-    const pct  = vmtgs.length>0 ? Math.round(done/vmtgs.length*100) : 0;
-    return {{code, name:s.name, manager:s.manager||'−', am:s.am||'−', area:s.area||'−',
-             done, pct, vmtgs}};
-  }}).sort((a,b)=>b.pct-a.pct||a.name.localeCompare(b.name,'ja'));
+    const smName = s.manager||'';
+    // SM個人参加としてカウント（sm=2点, store=1点で参加率算出）
+    const statuses = vmtgs.map(m => getSmStatus(code, m, smName));
+    const smCount    = statuses.filter(st=>st==='sm').length;
+    const storeCount = statuses.filter(st=>st==='store').length;
+    const pct = vmtgs.length>0 ? Math.round(smCount/vmtgs.length*100) : 0;
+    return {{code, name:s.name, manager:smName||'−', am:s.am||'−', area:s.area||'−',
+             smCount, storeCount, pct, vmtgs, statuses}};
+  }}).sort((a,b)=>b.pct-a.pct||b.storeCount-a.storeCount||a.name.localeCompare(b.name,'ja'));
 
   document.getElementById('sm-count').textContent = rows.length + '名';
+
+  // 凡例
+  const legend = `<div style="display:flex;gap:16px;margin-bottom:12px;font-size:12px;align-items:center">
+    <span style="color:var(--dim)">凡例:</span>
+    <span><span style="color:#38d9a9;font-weight:700">✓ SM確認済み</span></span>
+    <span><span style="color:#ffa94d;font-weight:700">△ 店舗参加あり</span>（SM以外のスタッフが参加）</span>
+    <span><span style="color:var(--mut)">− 未参加</span></span>
+  </div>`;
+  document.getElementById('sm-legend').innerHTML = legend;
 
   // ヘッダー
   document.getElementById('sm-th').innerHTML = `<tr style="background:var(--sur2)">
@@ -1007,18 +1151,19 @@ function renderSM() {{
     <th style="padding:9px 12px;text-align:left;border-bottom:1px solid var(--bdr);white-space:nowrap;color:var(--dim);font-weight:600">エリア</th>
     <th style="padding:9px 12px;text-align:left;border-bottom:1px solid var(--bdr);white-space:nowrap;color:var(--dim);font-weight:600">AM</th>
     ${{vmtgs.map(m=>`<th style="padding:6px 8px;text-align:center;border-bottom:1px solid var(--bdr);white-space:nowrap;color:var(--dim);font-weight:500;font-size:10px">${{m.replace('３笑講座','３笑').replace('接客基礎','接客').replace('研修','')}}</th>`).join('')}}
-    <th style="padding:9px 12px;text-align:center;border-bottom:1px solid var(--bdr);white-space:nowrap;color:var(--dim);font-weight:600">参加率</th>
+    <th style="padding:9px 12px;text-align:center;border-bottom:1px solid var(--bdr);white-space:nowrap;color:var(--dim);font-weight:600">SM参加率</th>
   </tr>`;
 
   // ボディ
   document.getElementById('sm-tb').innerHTML = rows.map(r=>{{
-    const pctColor = r.pct>=70?'#38d9a9':r.pct>=40?'#ffa94d':'#ff6b6b';
-    const cells = r.vmtgs.map(m=>{{
-      const mins = RESULT[r.code][m];
-      const ok = mins!==null&&mins!==undefined;
-      return `<td style="text-align:center;padding:6px 8px;border-bottom:1px solid rgba(42,48,69,.4)">
-        ${{ok?`<span style="color:#38d9a9;font-size:14px">✓</span>`:`<span style="color:var(--mut)">−</span>`}}
-      </td>`;
+    const pctColor = r.pct>=70?'#38d9a9':r.pct>=40?'#ffa94d':'#7a8099';
+    const cells = r.vmtgs.map((m,i)=>{{
+      const st = r.statuses[i];
+      let cell;
+      if(st==='sm')    cell = `<span style="color:#38d9a9;font-size:15px;font-weight:700" title="SM本人参加">✓</span>`;
+      else if(st==='store') cell = `<span style="color:#ffa94d;font-size:13px;font-weight:700" title="店舗参加あり（SM以外）">△</span>`;
+      else             cell = `<span style="color:var(--mut)">−</span>`;
+      return `<td style="text-align:center;padding:6px 8px;border-bottom:1px solid rgba(42,48,69,.4)">${{cell}}</td>`;
     }}).join('');
     return `<tr style="border-bottom:1px solid rgba(42,48,69,.4)" onmouseover="this.style.background='var(--sur2)'" onmouseout="this.style.background=''">
       <td style="padding:9px 12px;font-weight:600;white-space:nowrap">${{esc(r.manager)}}</td>
@@ -1200,6 +1345,40 @@ function switchMainTab(tab) {{
   if(tab==='sm') renderSM();
 }}
 
+// SM名とzoom表示名の照合
+function smInZoom(smName, zoomName) {{
+  if(!smName || !zoomName) return false;
+  smName = smName.trim();
+  zoomName = zoomName.trim();
+  // フルネーム一致
+  if(zoomName.includes(smName)) return true;
+  // 姓のみ（スペース区切り最初）で一致（2文字以上）
+  const sei = smName.split(/[ 　]/)[0];
+  if(sei && sei.length >= 2 && zoomName.includes(sei)) return true;
+  return false;
+}}
+
+// zoom_logをミーティング×店舗でインデックス化
+function buildZoomIndex() {{
+  const idx = {{}};
+  ZOOM_LOG.forEach(log => {{
+    if(!idx[log.mtg]) idx[log.mtg] = {{}};
+    if(!idx[log.mtg][log.store]) idx[log.mtg][log.store] = [];
+    idx[log.mtg][log.store].push(log.zoom);
+  }});
+  return idx;
+}}
+const ZOOM_IDX = buildZoomIndex();
+
+// SM個人参加状況を判定
+// 戻り値: 'sm'=SM確認済み / 'store'=店舗参加あり / 'none'=未参加
+function getSmStatus(code, mtg, smName) {{
+  const zooms = ZOOM_IDX[mtg]?.[code] || [];
+  if(zooms.length === 0) return 'none';
+  if(smName && smName !== '−' && zooms.some(z => smInZoom(smName, z))) return 'sm';
+  return 'store';
+}}
+
 function renderSM() {{
   const fi    = (document.getElementById('sm-fi').value||'').trim();
   const area  = document.getElementById('sm-area').value;
@@ -1207,7 +1386,6 @@ function renderSM() {{
   const month = document.getElementById('sm-month').value;
   const vmtgs = month ? MEETINGS.filter(m=>m.startsWith(month+'/')) : MEETINGS;
 
-  // OPEN店舗のみ・フィルター適用
   const rows = Object.keys(RESULT).filter(code=>{{
     const s = SM[code];
     if(!s || s.opcl==='CLOSE') return false;
@@ -1217,13 +1395,26 @@ function renderSM() {{
     return true;
   }}).map(code=>{{
     const s = SM[code];
-    const done = vmtgs.filter(m=>RESULT[code][m]!==null&&RESULT[code][m]!==undefined).length;
-    const pct  = vmtgs.length>0 ? Math.round(done/vmtgs.length*100) : 0;
-    return {{code, name:s.name, manager:s.manager||'−', am:s.am||'−', area:s.area||'−',
-             done, pct, vmtgs}};
-  }}).sort((a,b)=>b.pct-a.pct||a.name.localeCompare(b.name,'ja'));
+    const smName = s.manager||'';
+    // SM個人参加としてカウント（sm=2点, store=1点で参加率算出）
+    const statuses = vmtgs.map(m => getSmStatus(code, m, smName));
+    const smCount    = statuses.filter(st=>st==='sm').length;
+    const storeCount = statuses.filter(st=>st==='store').length;
+    const pct = vmtgs.length>0 ? Math.round(smCount/vmtgs.length*100) : 0;
+    return {{code, name:s.name, manager:smName||'−', am:s.am||'−', area:s.area||'−',
+             smCount, storeCount, pct, vmtgs, statuses}};
+  }}).sort((a,b)=>b.pct-a.pct||b.storeCount-a.storeCount||a.name.localeCompare(b.name,'ja'));
 
   document.getElementById('sm-count').textContent = rows.length + '名';
+
+  // 凡例
+  const legend = `<div style="display:flex;gap:16px;margin-bottom:12px;font-size:12px;align-items:center">
+    <span style="color:var(--dim)">凡例:</span>
+    <span><span style="color:#38d9a9;font-weight:700">✓ SM確認済み</span></span>
+    <span><span style="color:#ffa94d;font-weight:700">△ 店舗参加あり</span>（SM以外のスタッフが参加）</span>
+    <span><span style="color:var(--mut)">− 未参加</span></span>
+  </div>`;
+  document.getElementById('sm-legend').innerHTML = legend;
 
   // ヘッダー
   document.getElementById('sm-th').innerHTML = `<tr style="background:var(--sur2)">
@@ -1232,18 +1423,19 @@ function renderSM() {{
     <th style="padding:9px 12px;text-align:left;border-bottom:1px solid var(--bdr);white-space:nowrap;color:var(--dim);font-weight:600">エリア</th>
     <th style="padding:9px 12px;text-align:left;border-bottom:1px solid var(--bdr);white-space:nowrap;color:var(--dim);font-weight:600">AM</th>
     ${{vmtgs.map(m=>`<th style="padding:6px 8px;text-align:center;border-bottom:1px solid var(--bdr);white-space:nowrap;color:var(--dim);font-weight:500;font-size:10px">${{m.replace('３笑講座','３笑').replace('接客基礎','接客').replace('研修','')}}</th>`).join('')}}
-    <th style="padding:9px 12px;text-align:center;border-bottom:1px solid var(--bdr);white-space:nowrap;color:var(--dim);font-weight:600">参加率</th>
+    <th style="padding:9px 12px;text-align:center;border-bottom:1px solid var(--bdr);white-space:nowrap;color:var(--dim);font-weight:600">SM参加率</th>
   </tr>`;
 
   // ボディ
   document.getElementById('sm-tb').innerHTML = rows.map(r=>{{
-    const pctColor = r.pct>=70?'#38d9a9':r.pct>=40?'#ffa94d':'#ff6b6b';
-    const cells = r.vmtgs.map(m=>{{
-      const mins = RESULT[r.code][m];
-      const ok = mins!==null&&mins!==undefined;
-      return `<td style="text-align:center;padding:6px 8px;border-bottom:1px solid rgba(42,48,69,.4)">
-        ${{ok?`<span style="color:#38d9a9;font-size:14px">✓</span>`:`<span style="color:var(--mut)">−</span>`}}
-      </td>`;
+    const pctColor = r.pct>=70?'#38d9a9':r.pct>=40?'#ffa94d':'#7a8099';
+    const cells = r.vmtgs.map((m,i)=>{{
+      const st = r.statuses[i];
+      let cell;
+      if(st==='sm')    cell = `<span style="color:#38d9a9;font-size:15px;font-weight:700" title="SM本人参加">✓</span>`;
+      else if(st==='store') cell = `<span style="color:#ffa94d;font-size:13px;font-weight:700" title="店舗参加あり（SM以外）">△</span>`;
+      else             cell = `<span style="color:var(--mut)">−</span>`;
+      return `<td style="text-align:center;padding:6px 8px;border-bottom:1px solid rgba(42,48,69,.4)">${{cell}}</td>`;
     }}).join('');
     return `<tr style="border-bottom:1px solid rgba(42,48,69,.4)" onmouseover="this.style.background='var(--sur2)'" onmouseout="this.style.background=''">
       <td style="padding:9px 12px;font-weight:600;white-space:nowrap">${{esc(r.manager)}}</td>
