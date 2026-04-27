@@ -276,8 +276,8 @@ tbody tr:hover td:nth-child(3),tbody tr:hover td:nth-child(4){{background:var(--
         border:1px solid var(--bdr);border-radius:8px;color:var(--txt);font-size:13px;font-family:inherit">
         <option value="">全AM</option>
         <option>旭</option><option>才賀</option><option>内田</option>
-        <option>佐伯</option><option>渡邊</option><option>花渕</option>
-        <option>荒金</option><option>西村</option>
+        <option>渡邊</option><option>花渕</option>
+        <option>荒金</option><option>西村</option><option>旭_AXS</option>
       </select>
       <select id="sm-month" onchange="renderSM()" style="padding:8px 12px;background:var(--sur2);
         border:1px solid var(--bdr);border-radius:8px;color:var(--txt);font-size:13px;font-family:inherit">
@@ -718,8 +718,8 @@ function renderSM() {{
         <select id="g-am" onchange="renderGraphs()">
           <option value="">全AM</option>
           <option>旭</option><option>才賀</option><option>内田</option>
-          <option>佐伯</option><option>渡邊</option><option>花渕</option>
-          <option>荒金</option><option>西村</option>
+          <option>渡邊</option><option>花渕</option>
+          <option>荒金</option><option>西村</option><option>旭_AXS</option>
         </select>
         <label>期間:</label>
         <select id="g-month" onchange="renderGraphs()">
@@ -749,8 +749,8 @@ function renderSM() {{
         <select id="h-am" onchange="renderHeatmap()">
           <option value="">全AM</option>
           <option>旭</option><option>才賀</option><option>内田</option>
-          <option>佐伯</option><option>渡邊</option><option>花渕</option>
-          <option>荒金</option><option>西村</option>
+          <option>渡邊</option><option>花渕</option>
+          <option>荒金</option><option>西村</option><option>旭_AXS</option>
         </select>
       </div>
       <div class="gp-section">
@@ -1481,8 +1481,8 @@ function renderSM() {{
         <select id="g-am" onchange="renderGraphs()">
           <option value="">全AM</option>
           <option>旭</option><option>才賀</option><option>内田</option>
-          <option>佐伯</option><option>渡邊</option><option>花渕</option>
-          <option>荒金</option><option>西村</option>
+          <option>渡邊</option><option>花渕</option>
+          <option>荒金</option><option>西村</option><option>旭_AXS</option>
         </select>
         <label>期間:</label>
         <select id="g-month" onchange="renderGraphs()">
@@ -1512,8 +1512,8 @@ function renderSM() {{
         <select id="h-am" onchange="renderHeatmap()">
           <option value="">全AM</option>
           <option>旭</option><option>才賀</option><option>内田</option>
-          <option>佐伯</option><option>渡邊</option><option>花渕</option>
-          <option>荒金</option><option>西村</option>
+          <option>渡邊</option><option>花渕</option>
+          <option>荒金</option><option>西村</option><option>旭_AXS</option>
         </select>
       </div>
       <div class="gp-section">
