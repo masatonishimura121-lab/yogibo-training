@@ -224,8 +224,8 @@ tbody tr:hover td:nth-child(3),tbody tr:hover td:nth-child(4){{background:var(--
     <select id="am-sel" onchange="render()">
       <option value="">全AM</option>
       <option>旭</option><option>才賀</option><option>内田</option>
-      <option>佐伯</option><option>渡邊</option><option>花渕</option>
-      <option>荒金</option><option>西村</option>
+      <option>渡邊</option><option>花渕</option>
+      <option>荒金</option><option>西村</option><option>旭_AXS</option>
     </select>
     <select id="month-sel" onchange="render()">
       <option value="">全期間</option>
@@ -960,8 +960,8 @@ tbody tr:hover td{{background:var(--sur2)}}
     <select id="am-sel" onchange="render()">
       <option value="">全AM</option>
       <option>旭</option><option>才賀</option><option>内田</option>
-      <option>佐伯</option><option>渡邊</option><option>花渕</option>
-      <option>荒金</option><option>西村</option>
+      <option>渡邊</option><option>花渕</option>
+      <option>荒金</option><option>西村</option><option>旭_AXS</option>
     </select>
     <select id="ops-sel-d" onchange="render()">
       <option value="">全運営</option>
